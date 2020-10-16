@@ -1,0 +1,70 @@
+[[package]]
+category = "main"
+description = "Wrapper package for OpenCV python bindings."
+name = "opencv-python-headless"
+optional = false
+python-versions = ">=3.6"
+version = "4.4.0.44"
+
+[[package]]
+category = "main"
+description = "Python Imaging Library (Fork)"
+name = "pillow"
+optional = false
+python-versions = ">=3.6"
+version = "8.0.0"
+
+[metadata]
+content-hash = "001aae64cb514591f3d9b06fc9e3cb3981b27a49d7b8ce5154d2ec71f0e1ce4d"
+python-versions = "^3.8"
+
+[metadata.files]
+opencv-python-headless = [
+    {file = "opencv-python-headless-4.4.0.44.tar.gz", hash = "sha256:6eefcacfb9b2da305277e1a93c7bf074dcd10b7aa154a0c963ded08fc0ffc02e"},
+    {file = "opencv_python_headless-4.4.0.44-cp36-cp36m-macosx_10_13_x86_64.whl", hash = "sha256:0896413b35b4b64acae42b84f740a458e0520d51f806946adf185e710a2ab300"},
+    {file = "opencv_python_headless-4.4.0.44-cp36-cp36m-manylinux2014_i686.whl", hash = "sha256:b9ac818c9b000389cfc6892c3109dd98d1eab63a6038084c6f8a560c8a696f17"},
+    {file = "opencv_python_headless-4.4.0.44-cp36-cp36m-manylinux2014_x86_64.whl", hash = "sha256:9fe62a18ddf18d80271f67c36b019044b33941c11aa2c13ba549c3142bdc3a50"},
+    {file = "opencv_python_headless-4.4.0.44-cp36-cp36m-win32.whl", hash = "sha256:a70c4d986c90d76514098af979344f7f3eeea694beb44ecdebf6a29e3d0c3774"},
+    {file = "opencv_python_headless-4.4.0.44-cp36-cp36m-win_amd64.whl", hash = "sha256:6d3d2efeedd13f452d59caf84f4eb507edf1763edb8e79de2e9aa47c05713b25"},
+    {file = "opencv_python_headless-4.4.0.44-cp37-cp37m-macosx_10_13_x86_64.whl", hash = "sha256:aa8cb3fe425b637879026661c53985fcabb3c1184bb6c17e2c1257e893b2e4c9"},
+    {file = "opencv_python_headless-4.4.0.44-cp37-cp37m-manylinux2014_i686.whl", hash = "sha256:b5d38a1100fdf1992170a3190176c3b99321f0e96e32a383f3b60b852e3f599f"},
+    {file = "opencv_python_headless-4.4.0.44-cp37-cp37m-manylinux2014_x86_64.whl", hash = "sha256:6003e57e9824a9f098d85ae833268f51356c6f23ea4669dd3ee2092bcbd2c800"},
+    {file = "opencv_python_headless-4.4.0.44-cp37-cp37m-win32.whl", hash = "sha256:4ef242b8923c693ad6b2e0ae7023582ebd983e6d487771639d0e9550e01fd120"},
+    {file = "opencv_python_headless-4.4.0.44-cp37-cp37m-win_amd64.whl", hash = "sha256:19cd76fcf886033a08556e203c49fdc4bfb4a95325f0b2d18562e6411f7bd475"},
+    {file = "opencv_python_headless-4.4.0.44-cp38-cp38-macosx_10_13_x86_64.whl", hash = "sha256:01e54dd61fc849f2c4dea9eb62e056f4332612616fc4d0576cb5a9096ae5818b"},
+    {file = "opencv_python_headless-4.4.0.44-cp38-cp38-manylinux2014_i686.whl", hash = "sha256:0c6ab08883e4f026c863a9d785f1ab7546bf2620d873d30fbedebf8e607d8ffc"},
+    {file = "opencv_python_headless-4.4.0.44-cp38-cp38-manylinux2014_x86_64.whl", hash = "sha256:4bc859120ce9271669cd5e7a01ac2a479b6f21e81900f1b7325d266c6e3a0e5f"},
+    {file = "opencv_python_headless-4.4.0.44-cp38-cp38-win32.whl", hash = "sha256:54dd417aba4bfcc2a6a2110bb6e6fed8a0f8eef2d432f86a1739cfa3e6d6caea"},
+    {file = "opencv_python_headless-4.4.0.44-cp38-cp38-win_amd64.whl", hash = "sha256:93f251c28739d8e8ade8898ddcbd75dcec60f779d9534644c568e7e65e2b76de"},
+]
+pillow = [
+    {file = "Pillow-8.0.0-cp36-cp36m-macosx_10_10_x86_64.whl", hash = "sha256:b04569ff215b85ce3e2954979d2d5e0bf84007e43ddcf84b632fc6bc18e07909"},
+    {file = "Pillow-8.0.0-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:594f2f25b7bcfd9542c41b9df156fb5104f19f5fcefa51b1447f1d9f64c9cc14"},
+    {file = "Pillow-8.0.0-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:87a855b64a9b692604f6339baa4f9913d06838df1b4ccf0cb899dd18f56ec03c"},
+    {file = "Pillow-8.0.0-cp36-cp36m-manylinux2014_aarch64.whl", hash = "sha256:b731d45764349313bd956c07bdc1d43803bb0ad2b11354328a074e416c7d84bc"},
+    {file = "Pillow-8.0.0-cp36-cp36m-win32.whl", hash = "sha256:30615e9115f976e00a938a28c7152562e8cf8e221ddacf4446dd8b20c0d97333"},
+    {file = "Pillow-8.0.0-cp36-cp36m-win_amd64.whl", hash = "sha256:e6ac40f1a62a227eb00226eb64c9c82bc878a3ed700b5414d34c9be57be87e87"},
+    {file = "Pillow-8.0.0-cp37-cp37m-macosx_10_10_x86_64.whl", hash = "sha256:2696f1a6402c1a42ed12c5cd8adfb4b381c32d41e35a34b8ee544309ef854172"},
+    {file = "Pillow-8.0.0-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:5b5dde5dcedc4e6f5a71d7654a3c6e189ced82e97d7896b1ca5a5c5e4e0e916f"},
+    {file = "Pillow-8.0.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:04d984e45a0b9815f4b407e8aadb50f25fbb82a605d89db927376e94c3adf371"},
+    {file = "Pillow-8.0.0-cp37-cp37m-manylinux2014_aarch64.whl", hash = "sha256:6bcea85f93fb2c94a1bcd35704c348a929a7fb24a0ec0cc2b9fcbb0046b87176"},
+    {file = "Pillow-8.0.0-cp37-cp37m-win32.whl", hash = "sha256:233513465a2f25fce537b965621866da3d1f02e15708f371dd4e19f0fb7b7711"},
+    {file = "Pillow-8.0.0-cp37-cp37m-win_amd64.whl", hash = "sha256:d904570afcdbec40eb6bdbe24cba8d95c0215a2c0cbbc9c16301045bc8504c1f"},
+    {file = "Pillow-8.0.0-cp38-cp38-macosx_10_10_x86_64.whl", hash = "sha256:8c006d52365c0a6bb41a07f9c8f9f458ae8170e0af3b8c49bf7089347066b97b"},
+    {file = "Pillow-8.0.0-cp38-cp38-manylinux1_i686.whl", hash = "sha256:9b5b41737853bc49943864d5980dfb401a09e78ddb471e71291810ccdeadd712"},
+    {file = "Pillow-8.0.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:3a77e7b9f8991b81d7be8e0b2deab05013cf3ebb24ac2b863d2979acb68c73dd"},
+    {file = "Pillow-8.0.0-cp38-cp38-manylinux2014_aarch64.whl", hash = "sha256:c41442c3814afeba1f6f16fd70cdf312a2c73c6dee8dc3ac8926bb115713ad1d"},
+    {file = "Pillow-8.0.0-cp38-cp38-win32.whl", hash = "sha256:718d7f0eb3351052023b33fe0f83fc9e3beeb7cbacbd0ff2b52524e2153e4598"},
+    {file = "Pillow-8.0.0-cp38-cp38-win_amd64.whl", hash = "sha256:7c4a7ee37027ca716f42726b6f9fc491c13c843c7af559e0767dfab1ae9682d4"},
+    {file = "Pillow-8.0.0-cp39-cp39-macosx_10_10_x86_64.whl", hash = "sha256:54667c8ab16658cc0b7d824d8706b440d4db8382a3561042758bdfd48ca99298"},
+    {file = "Pillow-8.0.0-cp39-cp39-manylinux1_i686.whl", hash = "sha256:1f59596af2b3d64a9e43f9d6509b7a51db744d0eecc23297617c604e6823c6ae"},
+    {file = "Pillow-8.0.0-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:f5270369c799b4405ed47d45c88c09fbd7942fc9fb9891c0dabf0b8c751b625d"},
+    {file = "Pillow-8.0.0-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:8e29701229705615d3dcfc439c7c46f40f913e57c7fe322b1efc30d3f37d1287"},
+    {file = "Pillow-8.0.0-cp39-cp39-win32.whl", hash = "sha256:c12e33cb17e2e12049a49b77696ee479791a4e44e541fdc393ae043e1246389f"},
+    {file = "Pillow-8.0.0-cp39-cp39-win_amd64.whl", hash = "sha256:06e730451b70471c08b8a0ee7f18e7e1df310dba9c780bbfb730a13102b143db"},
+    {file = "Pillow-8.0.0-pp36-pypy36_pp73-macosx_10_10_x86_64.whl", hash = "sha256:c4d743c5c91424965707c9c8edc58b7cb43c127dcaf191fbcd304e2082eef56a"},
+    {file = "Pillow-8.0.0-pp36-pypy36_pp73-manylinux2010_x86_64.whl", hash = "sha256:2ca55a4443b463eec90528ac27be14d226b1c2b972178bc7d4d282ce89e47b6a"},
+    {file = "Pillow-8.0.0-pp36-pypy36_pp73-win32.whl", hash = "sha256:e674be2f349ea810e221b0113bd4491f53584ac848d5bcc3b62443cfa11d9c40"},
+    {file = "Pillow-8.0.0-pp37-pypy37_pp73-win32.whl", hash = "sha256:d6766fd28f4f47cf93280a57e3dc6a9d11bdada1a6e9f019b8c62b12bbc86f6a"},
+    {file = "Pillow-8.0.0.tar.gz", hash = "sha256:59304c67d12394815331eda95ec892bf54ad95e0aa7bc1ccd8e0a4a5a25d4bf3"},
+]
