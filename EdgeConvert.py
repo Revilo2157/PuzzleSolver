@@ -40,7 +40,7 @@ def EdgeConvert(img):
   loop = 0
   for i in range(numTheta):
     shift = i + offset
-    shiftt = theta[i] + offset
+    shiftt = theta[i] + np.pi/4
     if shiftt > 360:
       shiftt -= 360
     if shift > numTheta - 1:
@@ -51,6 +51,10 @@ def EdgeConvert(img):
 
   plt.plot(newTheta, newR, "b")
   plt.savefig("cart.png")
+
+  plt.clf()
+
+  
 
   plt.clf()
 
@@ -77,5 +81,10 @@ def pol2cart(r, theta):
     x = r * np.cos(theta)
     y = r * np.sin(theta)
     return(x, y)
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
 
 #EdgeConvert(Image.open("pieces/1-1edge.png"))
