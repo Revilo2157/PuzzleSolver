@@ -40,24 +40,24 @@ def EdgeConvert(img):
   loop = 0
   for i in range(numTheta):
     shift = i + offset
-    shiftt = theta[i] - offset
-    if theta[i] - offset < 0:
-
-    if shiftt:
-      shift = 0 + loop
+    shiftt = theta[i] + offset
+    if shiftt > 360:
+      shiftt -= 360
+    if shift > numTheta - 1:
+      shift = 0
       loop += 1
-    newTheta.append(theta[i] - offset)
+    newTheta.append(shiftt)
     newR.append(r[shift])
 
   plt.plot(newTheta, newR, "b")
   plt.savefig("cart.png")
 
-  #plt.clf()
+  plt.clf()
 
   #plt.plot(x, y, "g")
   #plt.savefig("xy.png")
 
-  plt.polar(theta, r, "b")
+  plt.polar(newTheta, newR, "b")
   plt.savefig("polar.png")
 
 def sortPol(r, theta):
@@ -78,4 +78,4 @@ def pol2cart(r, theta):
     y = r * np.sin(theta)
     return(x, y)
 
-EdgeConvert(Image.open("pieces/1-1edge.png"))
+#EdgeConvert(Image.open("pieces/1-1edge.png"))
