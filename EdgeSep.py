@@ -77,7 +77,7 @@ def calcArea(a, b, c, d):
 		return calcArea(a, c, b, d)
 	
 
-img = Image.open("pieces/7-4edge.png")
+img = Image.open("pieces/1-3edge.png")
 
 count = 0
 sum = [0, 0]
@@ -181,11 +181,15 @@ for pointA in hull:
 
 				area = calcArea(pointA, pointB, pointC, pointD)
 
-				sorted.append(((pointA, pointB, pointC, pointD), area/(rectangularness + 1)))
+				sorted.append(((pointA, pointB, pointC, pointD), area/(rectangularness + 10)))
 
 sorted.sort(key=iter1, reverse=True)
-for point in sorted:
-	print(point)
+
+for line in sorted[:2]:
+	point = line[0]
+	print(line)
+	print(howRectangular(point[0], point[1], point[2], point[3]))
+	print(calcArea(point[0], point[1], point[2], point[3]))
 
 x = [n[0] for n in sorted[0][0]]
 y = [n[1] for n in sorted[0][0]]
