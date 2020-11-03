@@ -1,5 +1,5 @@
 from PIL import Image, ImageFilter
-#import EdgeCreator
+import EdgeCreator
 
 class PuzzlePiece:
 
@@ -8,14 +8,14 @@ class PuzzlePiece:
     self.maskFileName = fileName.replace(".png", "mask.png")
     self.edgeFileName = fileName.replace(".png", "edge.png")
     self.getEdges()
-    # self.classifyEdges()
+    self.classifyEdges()
+    
+    self.topEdge = 0
+    self.leftEdge = 0
+    self.bottomEdge = 0
+    self.rightEdge = 0
     
   
-
-  topEdge = 0
-  leftEdge = 0
-  bottomEdge = 0
-  rightEdge = 0
 
   fileName = ""
   maskFileName = ""
@@ -41,11 +41,12 @@ class PuzzlePiece:
     self.opened = True
     return Image.open(self.fileName)
 
-  # def classifyEdges(puzzlePieceFile):
-  #   # write code here to classify each edge
-  #   edgeCreator = EdgeCreator()
-  #   edgesList = edgeCreator.retrieveEdges()
-  #   topEdge = edgesList.get(0)
-  #   leftEdge = edgesList.get(1)
-  #   bottomEdge = edgesList.get(2)
-  #   rightEdge = edgesList.get(3)
+  def classifyEdges(puzzlePieceFile):
+    #write code here to classify each edge
+    # edgeCreator = EdgeCreator()
+    # edgesList = edgeCreator.retrieveEdges()
+    # topEdge = edgesList.get(0)
+    # leftEdge = edgesList.get(1)
+    # bottomEdge = edgesList.get(2)
+    # rightEdge = edgesList.get(3)
+    print("hi")

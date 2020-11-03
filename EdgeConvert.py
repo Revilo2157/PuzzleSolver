@@ -34,27 +34,47 @@ def EdgeConvert(img):
 
   r, theta = sortPol(r, theta)
 
+
+  plt.polar(theta, r, "b")
+  plt.savefig("polar.png")
+  plt.clf()
+  plt.plot(theta, r, "b")
+  plt.savefig("cart.png")
+  plt.clf()
+
   newR = []
+  for i in range(numTheta):
+    newR.append(0)
   newTheta = []
 
   loop = 0
   for i in range(numTheta):
     shift = i + offset
     shiftt = theta[i] + np.pi/4
-    if shiftt > 360:
-      shiftt -= 360
+    if shiftt > 2*np.pi:
+      shiftt -= 2*np.pi
     if shift > numTheta - 1:
       shift = 0
       loop += 1
     newTheta.append(shiftt)
-    newR.append(r[shift])
+    newR[i] = r[shift]
 
   plt.plot(newTheta, newR, "b")
-  plt.savefig("cart.png")
+  plt.savefig("cart3.png")
 
   plt.clf()
 
-  
+  nearest = find_nearest(theta, np.pi/4)
+  r2 = r[nearest:]
+  r2.extend(r[:nearest])
+
+  plt.plot(theta, r2, "b")
+  plt.savefig("cart2.png")
+
+  plt.clf()
+
+  plt.polar(theta, r2, "b")
+  plt.savefig("polar2.png")
 
   plt.clf()
 
@@ -62,7 +82,7 @@ def EdgeConvert(img):
   #plt.savefig("xy.png")
 
   plt.polar(newTheta, newR, "b")
-  plt.savefig("polar.png")
+  plt.savefig("polar3.png")
 
 def sortPol(r, theta):
   data = [(r[x], theta[x]) for x in range(len(r))]
@@ -85,6 +105,6 @@ def pol2cart(r, theta):
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
-    return array[idx]
+    return idx
 
 #EdgeConvert(Image.open("pieces/1-1edge.png"))

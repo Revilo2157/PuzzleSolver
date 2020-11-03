@@ -1,4 +1,5 @@
 import EdgeType
+import enum
 
 class Edge:
   edgeType = EdgeType.FLAT

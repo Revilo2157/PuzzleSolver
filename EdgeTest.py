@@ -8,26 +8,38 @@ def EdgeConvert(img):
   count = 0
   sum = [0, 0]
   edges = img.load()
+	xpix = []
+	ypix = []
+
   for x in range(img.size[0]):
     for y in range(img.size[1]):
       if (edges[x,y]):
         sum[0] += x
         sum[1] += y
+				xpix.append(x)
+				ypix.append(y)
         count += 1
   avg = [sum[0]/count, sum[1]/count]
 
+	xsorted = []
+	ysorted =[]
+	for i in range(len(xpix)):
+		dist = []
+		for j in range(len(xpix)):
+			if ((x[i] != x[j]) && (y[j] != y[i])):
+				dist.append(np.sqrt((x[j] - x[i])**2 + (y[j] - y[i])**2))
+
+
   r = []
   theta = []
-  for x in range(img.size[0]):
-    for y in range(img.size[1]):
-      if (edges[x,y]):
-        thisr, thistheta = (cart2pol(x-avg[0], y-avg[1]))
-        r.append(thisr)
-        theta.append(thistheta)
 
-  plt.plot(theta, r, "bo")
-  plt.savefig("polar.png")
+  for n in range(len(xpix)):
+		thisr, thistheta = (cart2pol(xpix[n]-avg[0], ypix[n]-avg[1]))
+		r.append(thisr)
+		theta.append(thistheta)
 
+  plt.plot(theta, r, "b")
+  plt.savefig("polarPlot.png")
 
 
 def cart2pol(x, y):
