@@ -41,7 +41,10 @@ def angle(A, B, C):
 	cross = np.cross([B[0] - A[0], B[1] - A[1]], [C[0] - B[0], C[1] - B[1]])
 	loc = (c**2 + a**2 - b**2)/(2*c*a)
 	if loc >= -1:
-		theta = np.arccos(loc)
+		if loc <= 1:
+			theta = np.arccos(loc)
+		else:
+			theta = 0
 	else:
 		theta = np.pi
 	return (theta, cross)
@@ -66,9 +69,9 @@ def sign(a):
 def calcArea(a, b, c, d):
 	abc = angle(a, b, c)
 	abd = angle(a, b, d)
-	if(abc[0] == np.pi or abd[0] == np.pi):
+	if(abc[0] == np.pi and abd[0] == np.pi):
 		return 0
-	if(sign(abc[1]) == sign(abd[1])):
+	if sign(abc[1]) == sign(abd[1]) or ((abc[1] == 0 and abd[1] != 0) or (abc[1] != 0 and abd[1] == 0)):
 		if(abc[0] > abd[0]):
 			return abs(det(a, b) + det(b, c) + det(c, d) + det(d, a))/2
 		else:
@@ -76,123 +79,119 @@ def calcArea(a, b, c, d):
 	else:
 		return calcArea(a, c, b, d)
 	
+for col in range(9):
+	for row in range(6): 
+		print("Testing %d-%d" % (col + 1, row + 1), end="\r")
+		img = Image.open("pieces/%d-%dedge.png" % (col + 1, row + 1))
 
-img = Image.open("pieces/1-3edge.png")
+		count = 0
+		sum = [0, 0]
+		edges = img.load()
+		x = []
+		y = []
+		points = []
+		for i in range(img.size[0]):
+			for j in range(img.size[1]):
+				if (edges[i,j]):
+					x.append(i)
+					y.append(j)
+					points.append((i, j))
+					sum[0] += i
+					sum[1] += j
+					count += 1
+		avg = [sum[0]/count, sum[1]/count]
 
-count = 0
-sum = [0, 0]
-edges = img.load()
-x = []
-y = []
-points = []
-for i in range(img.size[0]):
-	for j in range(img.size[1]):
-		if (edges[i,j]):
-			x.append(i)
-			y.append(j)
-			points.append((i, j))
-			sum[0] += i
-			sum[1] += j
-			count += 1
-avg = [sum[0]/count, sum[1]/count]
+		x = [n[0] for n in points]
+		y = [n[1] for n in points]
 
-x = [n[0] for n in points]
-y = [n[1] for n in points]
+		plt.clf()
+		plt.plot(x, y, "b.")
 
-plt.clf()
-plt.plot(x, y, "b.")
-plt.savefig("test1.png")
-
-hull = []
-points.sort(key = iter0)
-points.sort(key = iter1)
-current = points[0]
-hull.append(current)
-prev = (0, current[1])
-done = False
-first = current
-while(1):
-	potential = []
-	for next in points:
-		if(current == next):
-			continue
-	
-		theta, cross = angle(prev, current, next)
-		if(cross >= 0):
-			potential.append((next, (theta, distance(current, next))))
-
-	potential.sort(key = iter11)
-	potential.sort(key = iter10, reverse = True)
-
-	prev = current
-	current = potential.pop(0)[0]
-	points.remove(current)
-	hull.append(current)
-
-	if(current == first):
-		break
-
-print(len(hull))
-
-n = 0
-while n < len(hull):
-	start = hull[n]
-	sx = start[0]
-	sy = start[1]
-	end = -1
-	for j in range(n + 1, len(hull)):
-		point = hull[j]
-		if sx == point[0] or sy == point[1]:
-			end = j
-		else:
-			break
-	
-	if(end != -1):
-		toRemove = hull[n+1: end]
-		for point in toRemove:
-			hull.remove(point)
-
-	n = n+1
-
-print(len(hull))
-
-tested = []
-sorted = []
-for pointA in hull:
-	print(pointA)
-	for pointB in hull:
-		if pointA is pointB:
-			continue
-		for pointC in hull:
-			if pointC is pointB or pointC is pointA:
-				continue
-			for pointD in hull:
-				if pointD is pointC or pointD is pointB or pointD is pointA:
+		hull = []
+		points.sort(key = iter0)
+		points.sort(key = iter1)
+		current = points[0]
+		hull.append(current)
+		prev = (0, current[1])
+		done = False
+		first = current
+		while(1):
+			potential = []
+			for next in points:
+				if(current == next):
 					continue
+			
+				theta, cross = angle(prev, current, next)
+				if(cross >= 0):
+					potential.append((next, (theta, distance(current, next))))
 
-				setOfPoints = set((pointD, pointC, pointB, pointA))
+			potential.sort(key = iter11)
+			potential.sort(key = iter10, reverse = True)
 
-				if setOfPoints in tested:
+			prev = current
+			current = potential.pop(0)[0]
+			points.remove(current)
+			hull.append(current)
+
+			if(current == first):
+				break
+
+		n = 0
+		while n < len(hull):
+			start = hull[n]
+			sx = start[0]
+			sy = start[1]
+			end = -1
+			for j in range(n + 1, len(hull)):
+				point = hull[j]
+				if sx == point[0] or sy == point[1]:
+					end = j
+				else:
+					break
+			
+			if(end != -1):
+				toRemove = hull[n+1: end]
+				for point in toRemove:
+					hull.remove(point)
+
+			n = n+1
+
+		toCheck = len(hull)
+		n = 0
+
+		tested = []
+		sorted = []
+		for pointA in hull:
+			print("Testing %d-%d: %d%%" % (col + 1, row + 1, n/toCheck * 100), end="\r")
+			n = n+1
+			for pointB in hull:
+				if pointA is pointB:
 					continue
+				for pointC in hull:
+					if pointC is pointB or pointC is pointA:
+						continue
+					for pointD in hull:
+						if pointD is pointC or pointD is pointB or pointD is pointA:
+							continue
 
-				tested.append(setOfPoints)
+						setOfPoints = set((pointD, pointC, pointB, pointA))
 
-				rectangularness = howRectangular(pointA, pointB, pointC, pointD)
+						if setOfPoints in tested:
+							continue
 
-				area = calcArea(pointA, pointB, pointC, pointD)
+						tested.append(setOfPoints)
 
-				sorted.append(((pointA, pointB, pointC, pointD), area/(rectangularness + 10)))
+						rectangularness = howRectangular(pointA, pointB, pointC, pointD)
 
-sorted.sort(key=iter1, reverse=True)
+						area = calcArea(pointA, pointB, pointC, pointD)
 
-for line in sorted[:2]:
-	point = line[0]
-	print(line)
-	print(howRectangular(point[0], point[1], point[2], point[3]))
-	print(calcArea(point[0], point[1], point[2], point[3]))
+						sorted.append(((pointA, pointB, pointC, pointD), area/(rectangularness + 10)))
 
-x = [n[0] for n in sorted[0][0]]
-y = [n[1] for n in sorted[0][0]]
+		print("Testing %d-%d: 100%%" % (col + 1, row + 1))
+		sorted.sort(key=iter1, reverse=True)
 
-plt.plot(x, y, "ro")
-plt.savefig("test2.png")
+		x = [n[0] for n in sorted[0][0]]
+		y = [n[1] for n in sorted[0][0]]
+
+		plt.plot(x, y, "ro")
+		plt.savefig("pieces/%d-%dcorner.png" % (col + 1, row + 1))
