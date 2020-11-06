@@ -2,53 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from PIL import Image
 import matplotlib
-"""matplotlib.use('Agg')
-
-img = Image.open("pieces/1-3edge.png")
-pix = img.load()
-
-count = 0
-sum = [0, 0]
-edges = img.load()
-x = []
-y = []
-points = []
-for i in range(img.size[0]):
-	for j in range(img.size[1]):
-		if (edges[i,j]):
-			x.append(i)
-			y.append(j)
-			points.append((i, j))
-			sum[0] += i
-			sum[1] += j
-			count += 1
-
-
-avg = (sum[0]/count, sum[1]/count)
-
-current = points.pop()
-first = current
-sorted = [current]
-while(points):
-	next = points.pop(np.argmin([distance(current, point) for point in points]))
-
-	if distance(next, current) < 3:
-		sorted.append(next) 
-		current = next
-
-	
-
-sorted.append(first)
-
-
-
-r = []
-theta = []
-for n in sorted:
-	out = cart2pol(n[0] - avg[0], n[1] - avg[1])
-	r.append(out[0])
-	theta.append(out[1])
-"""
 #---------------------------------
 def distance(a, b):
 	return np.sqrt((a[1] - b[1])**2 + (a[0] - b[0])**2)
@@ -116,21 +69,6 @@ def EdgeConvert(img):
   plt.savefig("cart.png")
   plt.clf()
 
-
-  """nearest = find_nearest(theta, np.pi/4)
-  r2 = r[nearest:]
-  r2.extend(r[:nearest])
-
-  plt.plot(theta, r2, "b")
-  plt.savefig("cart2.png")
-
-  plt.clf()
-
-  plt.polar(theta, r2, "b")
-  plt.savefig("polar2.png")"""
-
-  plt.clf()
-
   
   z1 = []
   z2 = []
@@ -170,62 +108,64 @@ def EdgeConvert(img):
   charZone(z3,z3t)
   charZone(z4,z4t)
   #print(z2)
-
-  
+  #plt.polar(z2t, z2, "r")
+  #plt.polar(z3t, z3, "k")
+  #plt.savefig("polar.png")
 def charZone(zone,theta):
-  cornLen = []
-  #r, theta = sortPol(r, theta)
-  
+  cornR = []
+  cornT = []
+  #put corner r, theta into lists
+  cornR.append(zone[0])
+  cornR.append(zone[len(zone) - 1])  
+  cornT.append(theta[0])
+  cornT.append(theta[len(theta) - 1])  
+
+  cornCart = []
+  (x,y) = pol2cart(cornR,cornT)
+  cX = x
+  cY = y
+
+  (x,y) = pol2cart(zone,theta)
+  zX = x
+  zY = y
+
+  vert = 0
+  horiz = 0
+
   i = 0
-  """for j in range(len(theta)):
-    while zone[j] not in cornLen and len(cornLen) < 2:
-      if theta[j] > -3*np.pi/4: #and j == 0:
-        cornLen.append(zone[j])
-        break
-      elif theta[j] > -1*np.pi/4: #and j == 1:
-        cornLen.append(zone[j])
-        break
-      elif theta[j] > np.pi/4: #and j == 2:
-        cornLen.append(zone[j])
-        break
-      elif theta[j] > 3*np.pi/4: #and j == 3:
-        cornLen.append(zone[j])
-        break"""
-  cornLen.append(zone[0])
-  cornLen.append(zone[len(zone) - 1])  
+  while True:
     
-  delta = 3
-  avCorn = np.average(cornLen)
-  av = np.average(zone)
-  med = np.median(zone)
-  #print(avCorn)
-  print(cornLen)
-  headLim = avCorn #+ delta
-  holeLim = avCorn - delta
-  max = np.amax(zone)
-  #print(max)
-  #print(np.amin(cornLen))
-  min = np.amin(zone)
-  #print(min)
-  cornMin = np.amin(cornLen)
-  cornMax = np.amax(cornLen)
-  print("AvCorner: " + str(avCorn) + "\navSide: " + str(av) + "\nmedian: " + str(med) + "\nmin: " + str(min) + "\nmax: " + str(max))
-  #if min < avSide - delta and max > avSide + delta:
-  #  print("EDGE")
-  minDif = abs(min - cornMin)
-  maxDif = abs(max - cornMax)
-  print(minDif)
-  print(maxDif)
-  if max > np.amax(cornLen) + delta and min == np.amin(cornLen) - delta:
-    print("HEAD1")
-  elif min < np.amin(cornLen) - delta and max == np.amax(cornLen):
-    print("HOLE1")
-  elif minDif > maxDif:
-    print("HOLE2")
-  elif minDif < maxDif:
-    print("HEAD2")
+    if zX[i] == zX[i + 1] and zY[i] != zY[i + 1]:
+      vert = 1
+      break
+    elif zX[i] != zX[i + 1] and zY[i] == zY[i + 1]:
+      horiz = 1
+      break
+    i += 1
+    if i > len(zX):
+      print("fuck")
+      break
+  
+  delta = 20
+
+  xmax = np.amax(zX)
+  xmin = np.amin(zX)
+  xAv = np.average(zX)
+  ymax = np.amax(zY)
+  ymin = np.amin(zY)
+  yAv = np.average(zY)
+
+  if vert == 1 and ymax > yAv + delta:
+    print("vHEAD")
+  elif vert == 1 and ymin < yAv - delta:
+    print("vHOLE")
+  elif horiz == 1 and xmax > xAv + delta:
+    print("hHEAD")
+  elif horiz == 1 and xmin < xAv - delta:
+    print("hHole")
   else:
     print("EDGE")
+  
 
 def sortPol(r, theta):
   data = [(r[x], theta[x]) for x in range(len(r))]
@@ -250,6 +190,4 @@ def find_nearest(array, value):
     idx = (np.abs(array - value)).argmin()
     return idx
 
-
-
-EdgeConvert(Image.open("pieces/5-5edge.png"))
+EdgeConvert(Image.open("pieces/2-2edge.png"))
