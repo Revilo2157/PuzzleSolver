@@ -1,6 +1,7 @@
 from PIL import Image
 from PuzzlePiece import PuzzlePiece 
 import os
+import time
 
 puzzle = Image.open("resources/transparent.png")
 pPix = puzzle.load()
@@ -73,7 +74,7 @@ for y in range(0, len(rowBoundaries), 2):
 		identifier = int((x + y*len(colBoundaries)/2)/2) + 1
 
 		try:
-			os.mkdir("pieces/p%d" % identifier)
+			os.mkdir("pieces/p%02d" % identifier)
 		except:
 			pass
 
@@ -83,9 +84,51 @@ for y in range(0, len(rowBoundaries), 2):
 		cropBox = (left, top, right, bottom)
 
 		piece = puzzle.crop(cropBox)
-		piece.save("pieces/p%d/p%d.png" % (identifier, identifier))
+		piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
 
 		pieceMask = mask.crop(cropBox)
-		pieceMask.save("pieces/p%d/p%d-mask.png" % (identifier, identifier))
+		pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
 
 		pieces.append(PuzzlePiece(identifier))
+
+# x, y = (0, 0)
+
+# top = rowBoundaries[y]
+# bottom = rowBoundaries[y+1]
+
+# identifier = int((x + y*len(colBoundaries)/2)/2) + 1
+
+# try:
+# 	os.mkdir("pieces/p%02d" % identifier)
+# except:
+# 	pass
+
+# left = colBoundaries[x]
+# right = colBoundaries[x+1]
+
+# cropBox = (left, top, right, bottom)
+
+# piece = puzzle.crop(cropBox)
+# piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
+
+# pieceMask = mask.crop(cropBox)
+# pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
+
+# start = time.time()
+# pieces.append(PuzzlePiece(identifier))
+# end = time.time()
+# print(end - start)
+
+# cornerPieces = []
+# for piece in pieces:
+#   flatCount = 0
+#   flatPositions = []
+#   for edge in piece.edges:
+#     if edge.classification == 0:
+#       flatCount = flatCount + 1
+#       flatPositions.append(edge.side)
+#   if flatCount == 2:
+#     if abs(flatPositions[0].value - flatPositions[1].value) % 2 ==1:
+#       cornerPieces.append(piece)
+      
+      

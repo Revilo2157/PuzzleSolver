@@ -1,11 +1,8 @@
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageColor, ImageDraw, ImageFont
 from Library import *
 import numpy as np
 from enum import Enum
 import pickle
-from matplotlib import pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
 
 class PuzzlePiece:
 	class ImageType(Enum):
@@ -31,28 +28,66 @@ class PuzzlePiece:
 			self.classification = classification
 			self.matched = matched
 
+	colors = (ImageColor.getrgb("red"), 	 ImageColor.getrgb("green"), 
+						ImageColor.getrgb("yellow"), ImageColor.getrgb("blue"))
+
 	def __init__(self, identifier): 
 		self.identifier = identifier
 		self.com = None
 		self.corners = None
 		self.perimeter = []
 		self.edges = []
-		self.filePrefix = "pieces/p%d/p%d" % (self.identifier, self.identifier)
+		self.filePrefix = "pieces/p%02d/p%02d" % (self.identifier, self.identifier)
 
 		if not self.load():
+
+			original = self.open(self.ImageType.ORIGINAL)
+			imedge = Image.new("RGBA", (original.size[0], original.size[1]))
+			imedge.paste((0,0,0,0), (0,0, original.size[0], original.size[1]))
+			imPix = imedge.load()
+
+			width, height = (40, 20)
+
 			self.createEdge()
 
-			plt.clf()
+			textPoints = []
+
 			for edge in self.getEdges():
 				offset, loc, char = self.classifyEdge(edge)
 				self.edges.append(self.Edge(offset, loc, char))
+
+				for point in edge:
+					x, y = point
+					imPix[x, y] = self.colors[loc.value]
+				
+				x = [point[0] for point in edge]
+				y = [point[1] for point in edge]
+
+				cx, cy = self.com
+				midx = np.mean(x)
+				midy = np.mean(y)
+				posx, posy = (midx - (midx - cx)/5, midy - (midy - cy)/5)
+
+				textPoints.append(([(posx*5 - width/2, posy*5), 
+														(posx*5 + width, posy*5 + height)], 
+														(posx*5 - width/4, posy*5 + height/6), char.name))
+
 			print("")
-			plt.axis("equal")
-			plt.savefig(self.filePrefix + "-char.png")
+
+			imedge = imedge.resize((original.size[0]*5, original.size[1]*5))
+			draw = ImageDraw.Draw(imedge)
+			for points in textPoints:
+				draw.rectangle(points[0], fill=ImageColor.getrgb("white"))
+				draw.text(points[1], points[2], 
+					ImageColor.getrgb("black"), 
+					font=ImageFont.truetype("resources/Roboto-Regular.ttf", 15))
+			imedge.save(self.filePrefix + "-char.png")
+
 			self.save()
 
 	def save(self):
-		toSave = {"edges" : [(edge.points, edge.side, edge.classification, edge.matched) for edge in self.edges], 
+		toSave = {"edges" : [(edge.points, edge.side, edge.classification, edge.matched) 
+														for edge in self.edges], 
 							"corners" : self.corners,
 							"com" : self.com,
 							"perimeter" : self.perimeter}
@@ -90,10 +125,16 @@ class PuzzlePiece:
 			for j in range(edgeImg.size[1]):
 				if edgePix[i,j]:
 					self.perimeter.append((i, j))
+          
+	def rotatePiece(self):
+		for edge in self.edges:
+			edge.side = self.Side(edge.side.value + 1)
+			if edge.side.value >= 4:
+				edge.side = self.Side(0)
 
 	def getEdges(self):
 		self.perimeter = parameterize(self.perimeter)
-		self.corners = findCorners(self.perimeter)	
+		self.corners   = findCorners(self.perimeter)	
 
 		indices = []
 		cx, cy = (0,0)
@@ -164,25 +205,25 @@ class PuzzlePiece:
 
 		if sign(x1 - cx) == sign(x2 - cx):
 			loc = self.Side.LEFT if x1 - cx < 0 else self.Side.RIGHT
-			offset = [sign(x1 - cx)*(point[0] - closest(x1, x2, cx)) 
+			offset = [(point[1], sign(x1 - cx)*(point[0] - closest(x1, x2, cx)))
 				for point in points]
 
-			textx = closest(x1, x2, cx) #x1 + sign(x1 - cx)*25
-			texty = cy
+			# textx = closest(x1, x2, cx) #x1 + sign(x1 - cx)*25
+			# texty = cy
 
 		elif sign(y1 - cy) == sign(y2 - cy):
 			loc = self.Side.BOTTOM if y1 - cy > 0 else self.Side.TOP
-			offset = [sign(y1 - cy)*(point[1] - closest(y1, y2, cy))
+			offset = [(point[0], sign(y1 - cy)*(point[1] - closest(y1, y2, cy)))
 				for point in points]
 
-			texty = closest(y1, y2, cy) #y1 + sign(y1 - cy)*25
-			textx = cx
+			# texty = closest(y1, y2, cy) #y1 + sign(y1 - cy)*25
+			# textx = cx
 
 		else:
 			print("Incorrect Corners")
 
-		mean = np.mean(offset)
-		median = np.median(offset)
+		mean = np.mean([point[1] for point in offset])
+		median = np.median([point[1] for point in offset])
 
 		if abs(mean - median) < 1:
 			text = "FLAT"
@@ -195,8 +236,8 @@ class PuzzlePiece:
 				text = "HOLE"
 				char = self.EdgeType.HOLE 
 
-		plt.plot([point[0] for point in points], [point[1] for point in points])
-		plt.text(textx, texty, text, bbox=dict(fc = "white", alpha=0.5))
+		# plt.plot([point[0] for point in points], [point[1] for point in points])
+		# plt.text(textx, texty, text, bbox=dict(fc = "white", alpha=0.5))
 		
 		print("{:<6}: {:4}".format(loc.name, text))
 		return (offset, loc, char)
