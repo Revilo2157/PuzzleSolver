@@ -66,58 +66,59 @@ try:
 except:
 	pass
 
-for y in range(0, len(rowBoundaries), 2):
-	top = rowBoundaries[y]
-	bottom = rowBoundaries[y+1]
+# for y in range(0, len(rowBoundaries), 2):
+# 	top = rowBoundaries[y]
+# 	bottom = rowBoundaries[y+1]
 
-	for x in range(0, len(colBoundaries), 2):
-		identifier = int((x + y*len(colBoundaries)/2)/2) + 1
+# 	for x in range(0, len(colBoundaries), 2):
+# 		identifier = int((x + y*len(colBoundaries)/2)/2) + 1
 
-		try:
-			os.mkdir("pieces/p%02d" % identifier)
-		except:
-			pass
+# 		try:
+# 			os.mkdir("pieces/p%02d" % identifier)
+# 		except:
+# 			pass
 
-		left = colBoundaries[x]
-		right = colBoundaries[x+1]
+# 		left = colBoundaries[x]
+# 		right = colBoundaries[x+1]
 
-		cropBox = (left, top, right, bottom)
+# 		cropBox = (left, top, right, bottom)
 
-		piece = puzzle.crop(cropBox)
-		piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
+# 		piece = puzzle.crop(cropBox)
+# 		piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
 
-		pieceMask = mask.crop(cropBox)
-		pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
+# 		pieceMask = mask.crop(cropBox)
+# 		pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
 
-		pieces.append(PuzzlePiece(identifier))
+# 		pieces.append(PuzzlePiece(identifier))
 
-# x, y = (0, 0)
+x, y = (0, 0)
 
-# top = rowBoundaries[y]
-# bottom = rowBoundaries[y+1]
+top = rowBoundaries[y]
+bottom = rowBoundaries[y+1]
 
-# identifier = int((x + y*len(colBoundaries)/2)/2) + 1
+identifier = int((x + y*len(colBoundaries)/2)/2) + 1
 
-# try:
-# 	os.mkdir("pieces/p%02d" % identifier)
-# except:
-# 	pass
+try:
+	os.mkdir("pieces/p%02d" % identifier)
+except:
+	pass
 
-# left = colBoundaries[x]
-# right = colBoundaries[x+1]
+left = colBoundaries[x]
+right = colBoundaries[x+1]
 
-# cropBox = (left, top, right, bottom)
+cropBox = (left, top, right, bottom)
 
-# piece = puzzle.crop(cropBox)
-# piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
+piece = puzzle.crop(cropBox)
+piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
 
-# pieceMask = mask.crop(cropBox)
-# pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
+pieceMask = mask.crop(cropBox)
+pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
 
-# start = time.time()
-# pieces.append(PuzzlePiece(identifier))
-# end = time.time()
-# print(end - start)
+start = time.time()
+pieces.append(PuzzlePiece(identifier))
+pieces[0].printEdges()
+end = time.time()
+print("{:.2f} seconds".format(end - start))
 
 # cornerPieces = []
 # for piece in pieces:

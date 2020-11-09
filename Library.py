@@ -200,8 +200,6 @@ def convexHull(points):
 # Output: 
 #		a tuple of the coordinates of the four corners 
 def findCorners(points):
-	print("\tAnalyzing", end="\r")
-
 	hull = convexHull(points)
 
 	n = 0
@@ -229,7 +227,6 @@ def findCorners(points):
 	tested = []
 	sorted = []
 	for pointA in hull:
-		print("\tAnalyzing: %3d%%" % (n/toCheck * 100), end="\r")
 		n = n+1
 		for pointB in hull:
 			if pointA is pointB:
@@ -272,7 +269,6 @@ def findCorners(points):
 
 					sorted.append((points, area/(rectangularness + 10)))
 
-	print("\tAnalyzing: 100%")
 	sorted.sort(key=iter1, reverse=True)
 
 	return sorted[0][0]

@@ -28,6 +28,9 @@ class PuzzlePiece:
 			self.classification = classification
 			self.matched = matched
 
+		def iterEnum(item):
+			return item.side.value
+
 	colors = (ImageColor.getrgb("red"), 	 ImageColor.getrgb("green"), 
 						ImageColor.getrgb("yellow"), ImageColor.getrgb("blue"))
 
@@ -37,6 +40,7 @@ class PuzzlePiece:
 		self.corners = None
 		self.perimeter = []
 		self.edges = []
+		self.rotations = 0
 		self.filePrefix = "pieces/p%02d/p%02d" % (self.identifier, self.identifier)
 
 		if not self.load():
@@ -72,7 +76,7 @@ class PuzzlePiece:
 														(posx*5 + width, posy*5 + height)], 
 														(posx*5 - width/4, posy*5 + height/6), char.name))
 
-			print("")
+			self.edges.sort(key=self.Edge.iterEnum)
 
 			imedge = imedge.resize((original.size[0]*5, original.size[1]*5))
 			draw = ImageDraw.Draw(imedge)
@@ -83,7 +87,7 @@ class PuzzlePiece:
 					font=ImageFont.truetype("resources/Roboto-Regular.ttf", 15))
 			imedge.save(self.filePrefix + "-char.png")
 
-			self.save()
+			# self.save()
 
 	def save(self):
 		toSave = {"edges" : [(edge.points, edge.side, edge.classification, edge.matched) 
@@ -127,6 +131,7 @@ class PuzzlePiece:
 					self.perimeter.append((i, j))
           
 	def rotatePiece(self):
+		self.rotations = (self.rotations + 1) % 4;
 		for edge in self.edges:
 			edge.side = self.Side(edge.side.value + 1)
 			if edge.side.value >= 4:
@@ -199,7 +204,6 @@ class PuzzlePiece:
 	def classifyEdge(self, points):
 		x1, y1 = points[0]
 		x2, y2 = points[-1]
-		print("\t\t", end="")
 
 		cx, cy = self.com
 
@@ -226,18 +230,18 @@ class PuzzlePiece:
 		median = np.median([point[1] for point in offset])
 
 		if abs(mean - median) < 1:
-			text = "FLAT"
 			char = self.EdgeType.FLAT
 		else:
 			if mean > median:
-				text = "HEAD"
 				char = self.EdgeType.HEAD
 			else:
-				text = "HOLE"
 				char = self.EdgeType.HOLE 
 
-		# plt.plot([point[0] for point in points], [point[1] for point in points])
-		# plt.text(textx, texty, text, bbox=dict(fc = "white", alpha=0.5))
-		
-		print("{:<6}: {:4}".format(loc.name, text))
 		return (offset, loc, char)
+
+
+	def printEdges(self):
+		for edge in self.edges:
+			print("\t{:<6}: {:4}".format(
+				edge.side.name, 
+				edge.classification.name))
