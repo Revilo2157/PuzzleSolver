@@ -87,7 +87,7 @@ class PuzzlePiece:
 					font=ImageFont.truetype("resources/Roboto-Regular.ttf", 15))
 			imedge.save(self.filePrefix + "-char.png")
 
-			# self.save()
+			self.save()
 
 	def save(self):
 		toSave = {"edges" : [(edge.points, edge.side, edge.classification, edge.matched) 
@@ -104,20 +104,14 @@ class PuzzlePiece:
 			with open(self.filePrefix + ".piece" , "rb") as jar:
 				toLoad = pickle.load(jar)
 		except:
-			print("Creating Piece %s" % self.identifier)
 			return False
 
-		print("Loaded Piece %s" % self.identifier)
 		for var in toLoad.keys():
 			if var == "edges":
 				for edge in toLoad[var]:
 					self.edges.append(self.Edge(edge[0], edge[1], edge[2], edge[3]))
 			else:
 				exec("self.%s = %s" % (var, str(toLoad[var])))
-
-		for edge in self.edges:
-			print("\t\t{:<6}: {:4}".format(edge.side.name, edge.classification.name))
-		print("")
 		return True
 
 	def createEdge(self):
