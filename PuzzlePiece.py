@@ -125,7 +125,7 @@ class PuzzlePiece:
 					self.perimeter.append((i, j))
           
 	def rotatePiece(self):
-		self.rotations = (self.rotations + 1) % 4;
+		self.rotations = (self.rotations + 1) % 4
 		for edge in self.edges:
 			edge.side = self.Side(edge.side.value + 1)
 			if edge.side.value >= 4:
