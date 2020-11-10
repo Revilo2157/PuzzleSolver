@@ -163,7 +163,7 @@ if __name__ == '__main__':
 
 	topLeft.printEdges()
 
-	while topLeft.getSide("TOP") != PuzzlePiece.EdgeType.FLAT and topLeft.getSide("LEFT") != PuzzlePiece.EdgeType.FLAT:
+	while topLeft.getSide("TOP").side != PuzzlePiece.EdgeType.FLAT and topLeft.getSide("LEFT").side != PuzzlePiece.EdgeType.FLAT:
 		topLeft.rotatePiece()
 
 	topLeft.printEdges()
