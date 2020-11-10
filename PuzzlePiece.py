@@ -1,4 +1,5 @@
 from PIL import Image, ImageFilter, ImageColor, ImageDraw, ImageFont
+from numpy.core.numeric import identity
 from Library import *
 import numpy as np
 from enum import Enum
@@ -237,12 +238,13 @@ class PuzzlePiece:
 
 	def getSide(self, which):
 		for edge in self.edges:
-			print(edge.side, end=" ")
 			if edge.side == self.Side[which]:
 				return edge
 		
 	def printEdges(self):
+		print("\nPiece %d Edges:" % self.identifier)
 		for edge in self.edges:
 			print("\t{:<6}: {:4}".format(
 				edge.side.name, 
 				edge.classification.name))
+		print()

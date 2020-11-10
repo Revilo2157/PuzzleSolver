@@ -120,7 +120,6 @@ if __name__ == '__main__':
 
 	for index in range(len(threads)):
 		piece = pieces[index]
-		print("Piece %d" % piece.identifier)
 		piece.printEdges()
 		print("")
 
@@ -163,7 +162,8 @@ if __name__ == '__main__':
 
 	topLeft.printEdges()
 
-	while topLeft.getSide("TOP").side != PuzzlePiece.EdgeType.FLAT and topLeft.getSide("LEFT").side != PuzzlePiece.EdgeType.FLAT:
+	while (topLeft.getSide("TOP").classification != PuzzlePiece.EdgeType.FLAT 
+		or topLeft.getSide("LEFT").classification != PuzzlePiece.EdgeType.FLAT):
 		topLeft.rotatePiece()
 
 	topLeft.printEdges()
