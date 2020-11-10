@@ -134,19 +134,20 @@ if __name__ == '__main__':
 	for piece in pieces:
 		count = 0
 		for edge in piece.edges:
-			if edge.classification == piece.EdgeType.FLAT:
+			if edge.classification.name == "FLAT":
 				if "flat" not in PieceEdges:
 					PieceEdges["flat"] = set()
 				PieceEdges["flat"].add(piece)
 				count += 1
-			elif edge.classification == piece.EdgeType.HEAD:
+			elif edge.classification.name == "HEAD":
 				if "head" not in PieceEdges:
 					PieceEdges["head"] = set()
 				PieceEdges["head"].add(piece)
-			elif edge.classification == piece.EdgeType.HOLE:
+			elif edge.classification.name == "HOLE":
 				if "hole" not in PieceEdges:
 					PieceEdges["hole"] = set()
 				PieceEdges["hole"].add(piece)
+
 		if count == 2:
 			if "corner" not in PieceEdges:
 				PieceEdges["corner"] = set()
@@ -157,6 +158,12 @@ if __name__ == '__main__':
 	for type in PieceEdges:
 		print("%d %s pieces" % (len(PieceEdges[type]), type))
 
-	firstPiece = PieceEdges["corners"][0]
+	for topLeft in PieceEdges["corner"]:
+		break
 
-	
+	topLeft.printEdges()
+
+	while topLeft.getSide("TOP") != PuzzlePiece.EdgeType.FLAT and topLeft.getSide("LEFT") != PuzzlePiece.EdgeType.FLAT:
+		topLeft.rotatePiece()
+
+	topLeft.printEdges()

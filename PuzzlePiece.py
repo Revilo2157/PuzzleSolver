@@ -18,7 +18,7 @@ class PuzzlePiece:
 	class Side(Enum):
 		BOTTOM = 0
 		RIGHT  = 1
-		TOP	 	 = 2
+		TOP	   = 2
 		LEFT   = 3
 
 	class Edge:
@@ -31,8 +31,8 @@ class PuzzlePiece:
 		def iterEnum(item):
 			return item.side.value
 
-	colors = (ImageColor.getrgb("red"), 	 ImageColor.getrgb("green"), 
-						ImageColor.getrgb("yellow"), ImageColor.getrgb("blue"))
+	colors = (ImageColor.getrgb("red"),    ImageColor.getrgb("green"), 
+			  ImageColor.getrgb("yellow"), ImageColor.getrgb("blue"))
 
 	def __init__(self, identifier): 
 		self.identifier = identifier
@@ -127,9 +127,11 @@ class PuzzlePiece:
 	def rotatePiece(self):
 		self.rotations = (self.rotations + 1) % 4
 		for edge in self.edges:
-			edge.side = self.Side(edge.side.value + 1)
-			if edge.side.value >= 4:
+			if edge.side.value == 3:
 				edge.side = self.Side(0)
+			else:
+				edge.side = self.Side(edge.side.value + 1)
+			
 
 	def getEdges(self):
 		self.perimeter = parameterize(self.perimeter)
@@ -233,7 +235,12 @@ class PuzzlePiece:
 
 		return (offset, loc, char)
 
-
+	def getSide(self, which):
+		for edge in self.edges:
+			print(edge.side, end=" ")
+			if edge.side == self.Side[which]:
+				return edge
+		
 	def printEdges(self):
 		for edge in self.edges:
 			print("\t{:<6}: {:4}".format(
