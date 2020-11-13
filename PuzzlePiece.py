@@ -23,8 +23,9 @@ class PuzzlePiece:
 		LEFT   = 3
 
 	class Edge:
-		def __init__(self, points, side, classification, matched = False):
+		def __init__(self, points, offsets, side, classification, matched = False):
 			self.points = points
+			self.offsets = offsets
 			self.side = side
 			self.classification = classification
 			self.matched = matched
@@ -59,7 +60,7 @@ class PuzzlePiece:
 
 			for edge in self.getEdges():
 				offset, loc, char = self.classifyEdge(edge)
-				self.edges.append(self.Edge(offset, loc, char))
+				self.edges.append(self.Edge(edge, offset, loc, char)) # line I have to change
 
 				for point in edge:
 					x, y = point
@@ -91,7 +92,7 @@ class PuzzlePiece:
 			self.save()
 
 	def save(self):
-		toSave = {"edges" : [(edge.points, edge.side, edge.classification, edge.matched) 
+		toSave = {"edges" : [(edge.points, edge.offsets, edge.side, edge.classification, edge.matched) 
 														for edge in self.edges], 
 							"corners" : self.corners,
 							"com" : self.com,
@@ -110,7 +111,7 @@ class PuzzlePiece:
 		for var in toLoad.keys():
 			if var == "edges":
 				for edge in toLoad[var]:
-					self.edges.append(self.Edge(edge[0], edge[1], edge[2], edge[3]))
+					self.edges.append(self.Edge(edge[0], edge[1], edge[2], edge[3], edge[4]))
 			else:
 				exec("self.%s = %s" % (var, str(toLoad[var])))
 		return True
