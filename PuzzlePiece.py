@@ -237,6 +237,12 @@ class PuzzlePiece:
 		return (offset, loc, char)
 
 	def getSide(self, which):
+		if type(which) == int:
+			which = which % 4
+			for edge in self.edges:
+				if edge.side == self.Side(which):
+					return edge
+
 		for edge in self.edges:
 			if edge.side == self.Side[which]:
 				return edge
@@ -248,3 +254,7 @@ class PuzzlePiece:
 				edge.side.name, 
 				edge.classification.name))
 		print()
+
+	def show(self):
+		OG = self.open(self.ImageType.ORIGINAL)
+		OG.rotate(self.rotations*90).show()

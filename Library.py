@@ -10,6 +10,10 @@ import threading
 def iter0(item):
   return item[0]
 
+# Given a tuple, return the first element
+def iter01(item):
+  return item[0][1]
+
 # Given a tuple, return the second element
 def iter1(item):
   return item[1]

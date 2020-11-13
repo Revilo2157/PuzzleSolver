@@ -1,10 +1,39 @@
+from Library import iter0, iter1, iter01
 from PIL import Image
 from PuzzlePiece import PuzzlePiece 
+import numpy as np
 import os
 import time
 from multiprocessing import Process, Lock, Manager
 
 numThreads = 10
+
+# class Puzzle:
+
+# 	def __init__(self):
+# 		self.height = 0
+# 		self.width = 0
+# 		self.board = np.array()
+
+# 	def addNewCol(self):
+
+# 	def addNewRow(self):
+
+def match(side1, side2):
+	a = side1.points
+	b = side2.points[::-1]
+	trials = []
+	for offset in range(-int(len(max(a, b))/2), int(len(max(a, b))/2)):
+		diff = 0
+		for i in range(len(b)):
+			aInd = i + offset
+			if aInd < 0 or aInd >= len(a):
+				diff += 10
+			else:
+				diff += abs(a[aInd][1] + b[i][1])
+		trials.append((offset, diff))
+	trials.sort(key=iter1)
+	return trials[0]
 
 def analyzePiece(identifier, pieces, lock, semaphore):
 	with lock:
@@ -17,26 +46,22 @@ def analyzePiece(identifier, pieces, lock, semaphore):
 	semaphore.release()
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/transparent.png")
+	puzzle = Image.open("resources/babyYodaPuzzle.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
-	# mask = Image.new("RGBA", (puzzle.size[0], puzzle.size[1]))
-	# blackWhite = mask.load()
-	# for x in range(puzzle.size[0]):
-	#   for y in range(puzzle.size[1]):
-	#     if pPix[x, y] != pPix[0, 0]:
-	#       blackWhite[x, y] = (255, 255, 255, 255)
-	#     else:
-	#       blackWhite[x, y] = (0, 0, 0, 0)
-	#   print(x)
-
-	# edges = mask.filter(ImageFilter.FIND_EDGES).convert("L")
-	# edges.save("resources/edges.png")
-	# mask.save("resources/mask.png")
-
-	mask = Image.open("resources/mask.png")
+	mask = Image.new("RGBA", (puzzle.size[0], puzzle.size[1]))
 	mPix = mask.load()
+	for x in range(puzzle.size[0]):
+	  for y in range(puzzle.size[1]):
+	    if pPix[x, y] != pPix[0, 0]:
+	      mPix[x, y] = (255, 255, 255, 255)
+	    else:
+	      mPix[x, y] = (0, 0, 0, 0)
+
+
+
+	# mask = Image.open("resources/mask.png")
 
 	rowOf0 = True
 	colOf0 = True
@@ -118,10 +143,10 @@ if __name__ == '__main__':
 	for thread in threads:
 		thread.join()
 
-	for index in range(len(threads)):
-		piece = pieces[index]
-		piece.printEdges()
-		print("")
+	# for index in range(len(threads)):
+	# 	piece = pieces[index]
+	# 	piece.printEdges()
+	# 	print("")
 
 	end = time.time()
 	print("{:.2f} seconds".format(end - start))
@@ -133,19 +158,13 @@ if __name__ == '__main__':
 	for piece in pieces:
 		count = 0
 		for edge in piece.edges:
-			if edge.classification.name == "FLAT":
-				if "flat" not in PieceEdges:
-					PieceEdges["flat"] = set()
-				PieceEdges["flat"].add(piece)
+			name = edge.classification.name
+			if name not in PieceEdges:
+				PieceEdges[name] = set()
+			PieceEdges[name].add(piece)
+			
+			if name == "FLAT":
 				count += 1
-			elif edge.classification.name == "HEAD":
-				if "head" not in PieceEdges:
-					PieceEdges["head"] = set()
-				PieceEdges["head"].add(piece)
-			elif edge.classification.name == "HOLE":
-				if "hole" not in PieceEdges:
-					PieceEdges["hole"] = set()
-				PieceEdges["hole"].add(piece)
 
 		if count == 2:
 			if "corner" not in PieceEdges:
@@ -153,9 +172,9 @@ if __name__ == '__main__':
 			PieceEdges["corner"].add(piece)
 	
 
-	print("")
-	for type in PieceEdges:
-		print("%d %s pieces" % (len(PieceEdges[type]), type))
+	# print("")
+	# for type in PieceEdges:
+	# 	print("%d %s pieces" % (len(PieceEdges[type]), type))
 
 	for topLeft in PieceEdges["corner"]:
 		break
@@ -167,3 +186,29 @@ if __name__ == '__main__':
 		topLeft.rotatePiece()
 
 	topLeft.printEdges()
+
+	toCheck = PieceEdges["FLAT"].intersection(PieceEdges[topLeft.getSide("RIGHT").classification.name])
+	matches = []
+	for piece in toCheck:
+		while piece.getSide("TOP").classification != PuzzlePiece.EdgeType.FLAT:			
+			piece.rotatePiece()
+
+		left = piece.getSide("LEFT")
+
+		if left.classification == PuzzlePiece.EdgeType.FLAT or left.classification == topLeft.getSide("RIGHT").classification:
+			continue
+
+		matches.append((match(topLeft.getSide("RIGHT"), left), piece, left, piece.identifier))
+
+
+	matches.sort(key=iter01)
+	piece = matches[0][1]
+	pieceSide = matches[0][2]
+
+	for match in matches:
+		print(match)
+
+	piece.printEdges()
+	topLeft.show()
+	piece.show()
+	print(pieceSide)
