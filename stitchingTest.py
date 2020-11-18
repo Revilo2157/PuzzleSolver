@@ -1,14 +1,48 @@
 from Library import *
-from PIL import Image
+from PIL import Image, ImageDraw, ImageColor
 from PuzzlePiece import PuzzlePiece
 import numpy as np
 
-# def stitch(matrix):
-#     xlen = 0
-#     ylen = 0
+def stitch(matrix):
+    width = 0
+    height = 0
 
-#     for x in range(len(matrix.size[0])):
-#         piece = 
+    # get width
+    for x in range(len(matrix.size[0])):
+        top = matrix[x][0].getSide("TOP").points
+        width += abs(top[-1][0] - top[0][0])
+
+    # get height
+    for y in range(len(matrix.size[1])):
+        left = matrix[0][y].getSide("LEFT").points
+        height += abs(left[0][y] - left[-1][y])
+    
+    # create image
+    stitched = Image.new('RGB', [2*width, 2*height])
+
+    # attach pieces
+    for x in range(matrix.size[1]): # x = # of cols
+        for y in range(matrix.size[0]): # y = # of rows
+            current = matrix[x][y]
+            # rotations = current.rotations
+            if (x == 0):
+                height = 0
+                if (y == 0):
+                    width = [[0]]
+                    place = (0,0)
+
+                elif (y == 1):
+                    currTL = current.getSide("TOP").points[0]
+                    aboveBL = matrix[x][y-1].getSide("BOTTOM").points[-1]
+                    place = tuple(np.subtract(currTL - aboveBL))
+
+            else:
+                print()
+
+            
+            # add piece to image
+            stitched.paste(current.open(PuzzlePiece.ImageType.ORIGINAL), place, current.open(PuzzlePiece.ImageType.ORIGINAL))
+
 
 def tester():
     # get height of 36
@@ -27,7 +61,6 @@ def tester():
     len41 = left41[0][1] - left41[-1][1]
 
     height = len36 + len1 + len41
-    # print("len1 = %d, len41 = %d, height = %d\n" % (len1, len41, height))
     # get width of both
     top1 = one.getSide("TOP").points
     top41 = forty1.getSide("TOP").points
@@ -38,10 +71,7 @@ def tester():
     # test
     bottom36 = thirty6.getSide("BOTTOM").points
     bottom1 = one.getSide("BOTTOM").points
-    # print("width: %d, height: %d" % (width, height))
-    # print("top left: (%d,%d), top right: (%d,%d)\nbottom left: (%d,%d), bottom right: (%d,%d)" %
-    # (top1[0][0], top1[0][1], top1[-1][0], top1[-1][1], bottom1[-1][0], bottom1[-1][1], bottom1[0][0], bottom1[0][1]))
-
+    
     # create image
     stitched = Image.new('RGB', [2*width, 2*height])
 
@@ -51,3 +81,51 @@ def tester():
     stitched.paste(forty1.open(PuzzlePiece.ImageType.ORIGINAL), tuple(np.subtract(bottom1[-1], top41[0]) + [0, len36]), forty1.open(PuzzlePiece.ImageType.ORIGINAL))
 
     stitched.show()
+
+puzzle = [[PuzzlePiece(3), PuzzlePiece(4), PuzzlePiece(2)], [PuzzlePiece(1), PuzzlePiece(6), PuzzlePiece(5)]]
+
+for x in range(len(puzzle)):
+    for y in range(len(puzzle[0])):
+        print("\n*** piece %d ***" % (y + x*len(puzzle[0])))
+        hello = puzzle[x][y]
+        print(hello.getSide("TOP").points[0])
+        print(hello.getSide("TOP").points[-1])
+
+def newPoint(pt, ref, rot):
+    trans = [(1,0), (0,1), (-1,0), (0,-1)]
+    x = (pt[0] - ref[0])*trans[rot][0] - (pt[1] - ref[1])*trans[rot][1] + ref[0]
+    y = (pt[0] - ref[0])*trans[rot][1] + (pt[1] - ref[1])*trans[rot][0] + ref[1]
+
+    return (x,y)
+
+def rotTest():
+    current = PuzzlePiece(1)
+    top = current.getSide("TOP").points
+    bot = current.getSide("BOTTOM").points
+
+    corners = [top[0], bot[-1], bot[0], top[-1]]
+
+    print("*** original position ***")
+    original = current.open(PuzzlePiece.ImageType.ORIGINAL)
+    (cx, cy) = (int(original.size[0]/2), int(original.size[1]/2))
+    print("center: (%d, %d)\n" % (cx, cy))
+    orig_draw = ImageDraw.Draw(original)
+
+    for coord in corners:
+        print(coord)
+        orig_draw.point(coord, fill=ImageColor.getrgb("red"))
+    orig_draw.point((cx, cy), fill=ImageColor.getrgb("red"))
+    del orig_draw
+    original.show()
+
+    print("\n*** rotated position ***")
+    rotated = current.open(PuzzlePiece.ImageType.ORIGINAL).rotate(90, center=(cx, cy))
+    rot_draw = ImageDraw.Draw(rotated)
+
+    for coord in corners:
+        new = newPoint(coord, (cx, cy), 1)
+        print(new)
+        rot_draw.point(new, fill=ImageColor.getrgb("red"))
+    rot_draw.point((cx, cy), fill=ImageColor.getrgb("red"))
+    del rot_draw
+    rotated.show()
