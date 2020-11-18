@@ -35,7 +35,7 @@ def analyzePiece(identifier, pieces, lock, semaphore):
 	semaphore.release()
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/babyyoda.png")
+	puzzle = Image.open("resources/bigpuzzle.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
@@ -100,11 +100,11 @@ if __name__ == '__main__':
 	semaphore = manager.Semaphore(numThreads)
 
 	start = time.time()
-	for y in range(0, len(rowBoundaries), 2):
+	for y in range(0, 16, 2):
 		top = rowBoundaries[y]
 		bottom = rowBoundaries[y+1]
 
-		for x in range(0, len(colBoundaries), 2):
+		for x in range(0, 16, 2):
 			identifier = int((x + y*len(colBoundaries)/2)/2) + 1
 
 			try:

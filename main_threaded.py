@@ -35,7 +35,7 @@ def analyzePiece(identifier, pieces, lock, semaphore):
 	semaphore.release()
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/babyyoda.png")
+	puzzle = Image.open("resources/bigpuzzle.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete

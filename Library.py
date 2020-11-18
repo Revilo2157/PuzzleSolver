@@ -225,26 +225,34 @@ def findCorners(points):
 				hull.remove(point)
 		n = n+1
 
-	toCheck = len(hull)
-	n = 0
-
 	tested = []
 	sorted = []
+
 	for pointA in hull:
-		n = n+1
+		if colinear(pointA, points) <= 10:
+			continue
+
 		for pointB in hull:
 			if pointA is pointB:
 				continue
+
 			if distance(pointA, pointB) < 10:
+				continue
+
+			if colinear(pointB, points) <= 10:
 				continue
 
 			for pointC in hull:
 				if pointC is pointB or pointC is pointA:
 					continue
+
 				if distance(pointA, pointC) < 10 :
 					continue
 				if distance(pointC, pointB) < 10:
 					continue 
+
+				if colinear(pointC, points) <= 10:
+					continue
 
 				for pointD in hull:
 					if pointD is pointC:
@@ -253,11 +261,15 @@ def findCorners(points):
 						continue
 					if pointD is pointA:
 						continue
+
 					if distance(pointD, pointC) < 10 :
 						continue
 					if distance(pointD, pointB) < 10:
 						continue 
 					if distance(pointA, pointD) < 10 :
+						continue
+
+					if colinear(pointD, points) <= 10:
 						continue
 
 					points = (pointD, pointC, pointB, pointA)
@@ -319,3 +331,16 @@ def closest(a, b, center):
 		return a
 	else:
 		return b
+
+def colinear(toCheck, points):
+	count = 0
+	tcx, tcy = toCheck
+	for point in points:
+		if point is toCheck:
+			continue
+
+		px, py = point
+
+		if px == tcx or py == tcy:
+			count += 1
+	return count
