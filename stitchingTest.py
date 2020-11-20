@@ -103,7 +103,7 @@ def tester():
 
     stitched.show()
 
-puzzle = [[PuzzlePiece(3), PuzzlePiece(1)], [PuzzlePiece(4), PuzzlePiece(6)], [PuzzlePiece(2), PuzzlePiece(5)]]
+puzzle = [[PuzzlePiece(5), PuzzlePiece(3)], [PuzzlePiece(4), PuzzlePiece(2)], [PuzzlePiece(6), PuzzlePiece(1)]]
 stitch(puzzle)
 
 def newPoint(pt, ref, rot):
