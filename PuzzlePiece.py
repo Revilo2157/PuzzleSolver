@@ -202,13 +202,13 @@ class PuzzlePiece:
 
 	def open(self, which):
 		if which == self.ImageType.ORIGINAL:
-			return Image.open(self.filePrefix + ".png").rotate(self.rotations*90)
+			return Image.open(self.filePrefix + ".png")
 
 		elif which == self.ImageType.MASK:
-			return Image.open(self.filePrefix + "-mask.png").rotate(self.rotations*90)
+			return Image.open(self.filePrefix + "-mask.png")
 
 		elif which == self.ImageType.EDGE:
-			return Image.open(self.filePrefix + "-edge.png").rotate(self.rotations*90)
+			return Image.open(self.filePrefix + "-edge.png")
 
 	# Return the closest number to the center between a and b
 	# Input: 
