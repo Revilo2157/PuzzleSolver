@@ -16,14 +16,24 @@ def stitch(matrix):
         height += getHeight(matrix[0][y])
     
     # create image
-    stitched = Image.new('RGB', [width, height])
+    stitched = Image.new('RGBA', [width, height])
 
     # attach pieces
     for x in range(len(matrix)): # x = # of cols
         for y in range(len(matrix[0])): # y = # of rows
             current = matrix[x][y]
-            # rotations = current.rotations
-            ref = np.subtract((0,0), getTopLeft(current))
+            img = current.open(PuzzlePiece.ImageType.ORIGINAL)
+            rotations = current.rotations
+
+            # add padding and paste
+            square = max(img.size[0], img.size[1])
+            resized = Image.new('RGBA', [square, square])
+            resized.paste(img, (0,0), img)
+            center = (int(np.floor(resized.size[0]/2)), int(np.floor(resized.size[1]/2)))
+            rotatedImg = resized.rotate(rotations*90, center=center)
+            
+            # stich by top left corner
+            ref = np.subtract((0,0), getTopLeft(current, center, rotations))
 
             if ((x == 0) and (y == 0)):
                 height = 0
@@ -50,12 +60,9 @@ def stitch(matrix):
             # print(place)
             
             # add piece to image
-            stitched.paste(current.open(PuzzlePiece.ImageType.ORIGINAL), place, current.open(PuzzlePiece.ImageType.ORIGINAL))
+            stitched.paste(rotatedImg, place, rotatedImg)
             
     stitched.show()
-
-def getTopLeft(piece):
-    return piece.getSide("TOP").points[0]
 
 def getHeight(piece):
     # subtract the last point of bottom by the first point of top
@@ -65,82 +72,101 @@ def getWidth(piece):
     # subtract the last point of top by the first point of the top
     return piece.getSide("TOP").points[-1][0] - piece.getSide("TOP").points[0][0]
 
-def tester():
-    # get height of 36
-    thirty6 = PuzzlePiece(36)
-    left36 = thirty6.getSide("LEFT").points
-    len36 = left36[0][1] - left36[-1][1]
-
-    # get height of 1
-    one = PuzzlePiece(1)
-    left1 = one.getSide("LEFT").points #list of tuples
-    len1 = left1[0][1] - left1[-1][1]
-
-    # get height of 41
-    forty1 = PuzzlePiece(41)
-    left41 = forty1.getSide("LEFT").points
-    len41 = left41[0][1] - left41[-1][1]
-
-    height = len36 + len1 + len41
-    # get width of both
-    top1 = one.getSide("TOP").points
-    top41 = forty1.getSide("TOP").points
-    width1 = top1[-1][0] - top1[0][0]
-    width41 = top41[-1][0] - top41[0][0]
-    width = abs(max(width1, width41))
-
-    # test
-    bottom36 = thirty6.getSide("BOTTOM").points
-    bottom1 = one.getSide("BOTTOM").points
-    
-    # create image
-    stitched = Image.new('RGB', [2*width, 2*height])
-
-    # line up pieces
-    stitched.paste(thirty6.open(PuzzlePiece.ImageType.ORIGINAL), (0,0), thirty6.open(PuzzlePiece.ImageType.ORIGINAL)) # img, coordinates, mask
-    stitched.paste(one.open(PuzzlePiece.ImageType.ORIGINAL), tuple(np.subtract(bottom36[-1], top41[0])), one.open(PuzzlePiece.ImageType.ORIGINAL)) # img, coordinates, mask
-    stitched.paste(forty1.open(PuzzlePiece.ImageType.ORIGINAL), tuple(np.subtract(bottom1[-1], top41[0]) + [0, len36]), forty1.open(PuzzlePiece.ImageType.ORIGINAL))
-
-    stitched.show()
-
-puzzle = [[PuzzlePiece(5), PuzzlePiece(3)], [PuzzlePiece(4), PuzzlePiece(2)], [PuzzlePiece(6), PuzzlePiece(1)]]
-stitch(puzzle)
+# puzzle = [[PuzzlePiece(5), PuzzlePiece(3)], [PuzzlePiece(4), PuzzlePiece(2)], [PuzzlePiece(6), PuzzlePiece(1)]]
+# stitch(puzzle)
 
 def newPoint(pt, ref, rot):
-    trans = [(1,0), (0,1), (-1,0), (0,-1)]
+    trans = [(1,0), (0,-1), (-1,0), (0,1)]
     x = (pt[0] - ref[0])*trans[rot][0] - (pt[1] - ref[1])*trans[rot][1] + ref[0]
     y = (pt[0] - ref[0])*trans[rot][1] + (pt[1] - ref[1])*trans[rot][0] + ref[1]
 
     return (x,y)
 
-def rotTest():
-    current = PuzzlePiece(1)
-    top = current.getSide("TOP").points
-    bot = current.getSide("BOTTOM").points
-
+def getTopLeft(piece, center, rot):
+    # get and store corners
+    top = piece.getSide("TOP").points
+    bot = piece.getSide("BOTTOM").points
     corners = [top[0], bot[-1], bot[0], top[-1]]
 
+    # put transform into list
+    coords = []
+    for c in corners:
+        coords.append(newPoint(c, center, rot))
+    
+    return coords[rot*-1]
+
+def rotTest():
+    # get original
+    piece = PuzzlePiece(1)
+    original = piece.open(PuzzlePiece.ImageType.ORIGINAL)
+
+    # add padding and paste
+    square = max(original.size[0], original.size[1])
+    print(original.size)
+    print(square)
+    resized = Image.new('RGBA', [square, square])
+    resized.paste(original, (0,0), original)
+    (cx, cy) = (int(np.floor(resized.size[0]/2)), int(np.floor(resized.size[1]/2)))
+    rotated = resized.rotate(90, center=(cx, cy))
+
+    # get point coordinates
+    top = piece.getSide("TOP").points
+    bot = piece.getSide("BOTTOM").points
+
+    # store corners: TL, BL, BR, TR
+    names = ["TL", "BL", "BR", "TR"]
+    colors = ["red", "green", "blue", "yellow"]
+    corners = [top[0], bot[-1], bot[0], top[-1]]
+
+    # get original coordinates
     print("*** original position ***")
-    original = current.open(PuzzlePiece.ImageType.ORIGINAL)
-    (cx, cy) = (int(original.size[0]/2), int(original.size[1]/2))
     print("center: (%d, %d)\n" % (cx, cy))
-    orig_draw = ImageDraw.Draw(original)
+    orig_draw = ImageDraw.Draw(resized)
 
+    i = 0
     for coord in corners:
+        print("%s: " % (names[i]), end="")
         print(coord)
-        orig_draw.point(coord, fill=ImageColor.getrgb("red"))
-    orig_draw.point((cx, cy), fill=ImageColor.getrgb("red"))
+        orig_draw.point(coord, fill=ImageColor.getrgb(colors[i]))
+        i+=1
+    orig_draw.point((cx, cy), fill=ImageColor.getrgb("white"))
     del orig_draw
-    original.show()
+    resized.show()
 
+    # rotate resized image
     print("\n*** rotated position ***")
-    rotated = current.open(PuzzlePiece.ImageType.ORIGINAL).rotate(90, center=(cx, cy))
     rot_draw = ImageDraw.Draw(rotated)
 
+    i=0
     for coord in corners:
+        print("%s: " % (names[i]), end="")
         new = newPoint(coord, (cx, cy), 1)
         print(new)
-        rot_draw.point(new, fill=ImageColor.getrgb("red"))
-    rot_draw.point((cx, cy), fill=ImageColor.getrgb("red"))
+        rot_draw.point(new, fill=ImageColor.getrgb(colors[i]))
+        i+=1
+    rot_draw.point((cx, cy), fill=ImageColor.getrgb("white"))
+    print("(%d, %d)" % (cx, cy))
+
     del rot_draw
     rotated.show()
+
+def testTopLeft():
+    piece = PuzzlePiece(1)
+    rotations = PuzzlePiece(1).rotations
+    # rotations = 0
+    img = piece.open(PuzzlePiece.ImageType.ORIGINAL)
+
+    # add padding and paste
+    square = max(img.size[0], img.size[1])
+    resized = Image.new('RGBA', [square, square])
+    resized.paste(img, (0,0), img)
+    center = (int(np.floor(resized.size[0]/2)), int(np.floor(resized.size[1]/2)))
+    rotatedImg = resized.rotate(rotations*90, center=center)
+
+    rot_draw = ImageDraw.Draw(rotatedImg)
+    rot_draw.point(getTopLeft(piece, center, rotations), fill=ImageColor.getrgb("red"))
+
+    del rot_draw
+    rotatedImg.show()
+
+testTopLeft()
