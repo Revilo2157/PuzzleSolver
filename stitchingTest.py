@@ -8,41 +8,62 @@ def stitch(matrix):
     height = 0
 
     # get width
-    for x in range(len(matrix.size[0])):
-        top = matrix[x][0].getSide("TOP").points
-        width += abs(top[-1][0] - top[0][0])
+    for x in range(len(matrix)): # number of cols
+        width += getWidth(matrix[x][0])
 
     # get height
-    for y in range(len(matrix.size[1])):
-        left = matrix[0][y].getSide("LEFT").points
-        height += abs(left[0][y] - left[-1][y])
+    for y in range(len(matrix[0])): # number of rows
+        height += getHeight(matrix[0][y])
     
     # create image
-    stitched = Image.new('RGB', [2*width, 2*height])
+    stitched = Image.new('RGB', [width, height])
 
     # attach pieces
-    for x in range(matrix.size[1]): # x = # of cols
-        for y in range(matrix.size[0]): # y = # of rows
+    for x in range(len(matrix)): # x = # of cols
+        for y in range(len(matrix[0])): # y = # of rows
             current = matrix[x][y]
             # rotations = current.rotations
-            if (x == 0):
+            ref = np.subtract((0,0), getTopLeft(current))
+
+            if ((x == 0) and (y == 0)):
                 height = 0
-                if (y == 0):
-                    width = [[0]]
-                    place = (0,0)
-
-                elif (y == 1):
-                    currTL = current.getSide("TOP").points[0]
-                    aboveBL = matrix[x][y-1].getSide("BOTTOM").points[-1]
-                    place = tuple(np.subtract(currTL - aboveBL))
-
+                width = [0]
+                place = tuple(ref)
             else:
-                print()
+                # check x and y value
+                if(x == 0):
+                    width.append(0)
+                else:
+                    width[y] += getWidth(matrix[x-1][y])
 
+                if (y == 0):
+                    height = 0
+                else:
+                    height += getHeight(matrix[x][y-1])
+                
+                place = (ref[0] + width[y], ref[1] + height)
+
+            # print("\n[%d, %d]" % (x, y))
+            # print(ref)
+            # print(width[y])
+            # print(height)
+            # print(place)
             
             # add piece to image
             stitched.paste(current.open(PuzzlePiece.ImageType.ORIGINAL), place, current.open(PuzzlePiece.ImageType.ORIGINAL))
+            
+    stitched.show()
 
+def getTopLeft(piece):
+    return piece.getSide("TOP").points[0]
+
+def getHeight(piece):
+    # subtract the last point of bottom by the first point of top
+    return piece.getSide("BOTTOM").points[-1][1] - piece.getSide("TOP").points[0][1]
+
+def getWidth(piece):
+    # subtract the last point of top by the first point of the top
+    return piece.getSide("TOP").points[-1][0] - piece.getSide("TOP").points[0][0]
 
 def tester():
     # get height of 36
@@ -82,14 +103,8 @@ def tester():
 
     stitched.show()
 
-puzzle = [[PuzzlePiece(3), PuzzlePiece(4), PuzzlePiece(2)], [PuzzlePiece(1), PuzzlePiece(6), PuzzlePiece(5)]]
-
-for x in range(len(puzzle)):
-    for y in range(len(puzzle[0])):
-        print("\n*** piece %d ***" % (y + x*len(puzzle[0])))
-        hello = puzzle[x][y]
-        print(hello.getSide("TOP").points[0])
-        print(hello.getSide("TOP").points[-1])
+puzzle = [[PuzzlePiece(3), PuzzlePiece(1)], [PuzzlePiece(4), PuzzlePiece(6)], [PuzzlePiece(2), PuzzlePiece(5)]]
+stitch(puzzle)
 
 def newPoint(pt, ref, rot):
     trans = [(1,0), (0,1), (-1,0), (0,-1)]
