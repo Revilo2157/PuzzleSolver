@@ -11,16 +11,16 @@ class PuzzlePiece:
 		MASK     = 1
 		EDGE     = 2
 
-	class EdgeType(Enum):
-		FLAT = 0
-		HEAD = 1
-		HOLE = 2
-
 	class Side(Enum):
 		BOTTOM = 0
 		RIGHT  = 1
 		TOP	   = 2
 		LEFT   = 3
+
+	class EdgeType(Enum):
+		FLAT = 0
+		HEAD = 1
+		HOLE = 2
 
 	class Edge:
 		def __init__(self, points, offsets, side, classification, matched = False):
@@ -32,6 +32,17 @@ class PuzzlePiece:
 
 		def iterEnum(item):
 			return item.side.value
+
+	@staticmethod
+	def matchingType(given):
+		if not given.value:
+			return PuzzlePiece.EdgeType(0)
+		else:
+			if given.value == 1:
+				return PuzzlePiece.EdgeType(2)
+			else:
+				return PuzzlePiece.EdgeType(1)
+
 
 	colors = (ImageColor.getrgb("red"),    ImageColor.getrgb("green"), 
 			  ImageColor.getrgb("yellow"), ImageColor.getrgb("blue"))
@@ -90,6 +101,13 @@ class PuzzlePiece:
 			imedge.save(self.filePrefix + "-char.png")
 
 			self.save()
+
+
+	def __hash__(self):
+		return hash(self.identifier)
+
+	def __eq__(self, other):
+		return self.identifier == other.identifier
 
 	def save(self):
 		toSave = {"edges" : [(edge.points, edge.offsets, edge.side, edge.classification, edge.matched) 
@@ -184,13 +202,13 @@ class PuzzlePiece:
 
 	def open(self, which):
 		if which == self.ImageType.ORIGINAL:
-			return Image.open(self.filePrefix + ".png")
+			return Image.open(self.filePrefix + ".png").rotate(self.rotations*90)
 
 		elif which == self.ImageType.MASK:
-			return Image.open(self.filePrefix + "-mask.png")
+			return Image.open(self.filePrefix + "-mask.png").rotate(self.rotations*90)
 
 		elif which == self.ImageType.EDGE:
-			return Image.open(self.filePrefix + "-edge.png")
+			return Image.open(self.filePrefix + "-edge.png").rotate(self.rotations*90)
 
 	# Return the closest number to the center between a and b
 	# Input: 
@@ -259,3 +277,4 @@ class PuzzlePiece:
 	def show(self):
 		OG = self.open(self.ImageType.ORIGINAL)
 		OG.rotate(self.rotations*90).show()
+

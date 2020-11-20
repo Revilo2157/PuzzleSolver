@@ -1,4 +1,4 @@
-from Library import iter0, iter1, iter01
+from Library import iter0, iter1
 from PIL import Image
 from PuzzlePiece import PuzzlePiece 
 import numpy as np
@@ -8,20 +8,9 @@ from multiprocessing import Process, Lock, Manager
 
 numThreads = 10
 
-# class Puzzle:
-
-# 	def __init__(self):
-# 		self.height = 0
-# 		self.width = 0
-# 		self.board = np.array()
-
-# 	def addNewCol(self):
-
-# 	def addNewRow(self):
-
 def match(side1, side2):
-	a = side1.points
-	b = side2.points[::-1]
+	a = side1.offsets
+	b = side2.offsets[::-1]
 	trials = []
 	for offset in range(-int(len(max(a, b))/2), int(len(max(a, b))/2)):
 		diff = 0
@@ -31,8 +20,8 @@ def match(side1, side2):
 				diff += 10
 			else:
 				diff += abs(a[aInd][1] + b[i][1])
-		trials.append((offset, diff))
-	trials.sort(key=iter1)
+		trials.append(diff)
+	trials.sort()
 	return trials[0]
 
 def analyzePiece(identifier, pieces, lock, semaphore):
@@ -46,7 +35,7 @@ def analyzePiece(identifier, pieces, lock, semaphore):
 	semaphore.release()
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/babyYodaPuzzle.png")
+	puzzle = Image.open("resources/babyyoda.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
@@ -143,17 +132,10 @@ if __name__ == '__main__':
 	for thread in threads:
 		thread.join()
 
-	# for index in range(len(threads)):
-	# 	piece = pieces[index]
-	# 	piece.printEdges()
-	# 	print("")
-
 	end = time.time()
 	print("{:.2f} seconds".format(end - start))
 
 	PieceEdges = {}
-
-	puzzle = []
 
 	for piece in pieces:
 		count = 0
@@ -170,11 +152,6 @@ if __name__ == '__main__':
 			if "corner" not in PieceEdges:
 				PieceEdges["corner"] = set()
 			PieceEdges["corner"].add(piece)
-	
-
-	# print("")
-	# for type in PieceEdges:
-	# 	print("%d %s pieces" % (len(PieceEdges[type]), type))
 
 	for topLeft in PieceEdges["corner"]:
 		break
@@ -187,28 +164,75 @@ if __name__ == '__main__':
 
 	topLeft.printEdges()
 
-	toCheck = PieceEdges["FLAT"].intersection(PieceEdges[topLeft.getSide("RIGHT").classification.name])
-	matches = []
-	for piece in toCheck:
-		while piece.getSide("TOP").classification != PuzzlePiece.EdgeType.FLAT:			
-			piece.rotatePiece()
+	row = 0
+	col = 1
+	current = topLeft
+	puzzle = [[current]]
+	pieces.remove(current)
+	for type in PieceEdges:
+		PieceEdges[type].discard(current)
 
-		left = piece.getSide("LEFT")
+	while pieces:
+		while True:
+			corner = False
+			if not row:
+				above = None
+				topType = PuzzlePiece.EdgeType["FLAT"]
+			else:
+				above = puzzle[row-1][col]
+				topType = above.getSide("BOTTOM").classification
 
-		if left.classification == PuzzlePiece.EdgeType.FLAT or left.classification == topLeft.getSide("RIGHT").classification:
-			continue
+			if not col:
+				left = None
+				leftType = PuzzlePiece.EdgeType["FLAT"]
+			else:
+				left = puzzle[row][col-1]
+				leftType = left.getSide("RIGHT").classification
 
-		matches.append((match(topLeft.getSide("RIGHT"), left), piece, left, piece.identifier))
+			matches = []
+			toCheck = PieceEdges[topType.name].intersection(PieceEdges[leftType.name])
+			for piece in toCheck:
+				while piece.getSide("TOP").classification != PuzzlePiece.matchingType(topType):			
+					piece.rotatePiece()
 
+				if col and piece in PieceEdges["corner"] and piece.getSide("RIGHT").classification != PuzzlePiece.EdgeType.FLAT:
+					for n in range(3):
+						piece.rotatePiece()
+				left = piece.getSide("LEFT")
 
-	matches.sort(key=iter01)
-	piece = matches[0][1]
-	pieceSide = matches[0][2]
+				if left.classification != PuzzlePiece.matchingType(leftType):
+					continue
 
-	for match in matches:
-		print(match)
+				matches.append((match(current.getSide("LEFT"), left), piece))
 
-	piece.printEdges()
-	topLeft.show()
-	piece.show()
-	print(pieceSide)
+			matches.sort(key=iter0)
+			current = matches[0][1]
+			if not col:
+				puzzle.append([])
+			puzzle[row].append(current)
+
+			pieces.remove(current)
+			corner = current in PieceEdges["corner"]
+			for type in PieceEdges:
+				PieceEdges[type].discard(current)
+
+			if col and corner:
+				break
+					
+			col += 1
+		col = 0
+		row += 1
+
+	width = sum([piece.open(PuzzlePiece.ImageType.ORIGINAL).size[0] for piece in puzzle[0]])
+	for row in puzzle:
+		print(row[0].open(PuzzlePiece.ImageType.ORIGINAL).size[1])
+	height = sum([row[0].open(PuzzlePiece.ImageType.ORIGINAL).size[1] for row in puzzle])
+
+	assembled = Image.new("RGBA", (width, height))
+	where = (0,0)
+	for row in puzzle:
+		for piece in row: 
+			assembled.paste(piece.open(PuzzlePiece.ImageType.ORIGINAL), where)
+			where = (where[0] + piece.open(PuzzlePiece.ImageType.ORIGINAL).size[0], where[1])
+		where = (0, where[1] + piece.open(PuzzlePiece.ImageType.ORIGINAL).size[1])
+	assembled.show()
