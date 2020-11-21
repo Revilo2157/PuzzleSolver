@@ -9,7 +9,7 @@ from multiprocessing import Process, Lock, Manager
 import pickle
 
 numThreads = 10
-whichPuzzle = "bigpuzzle"
+whichPuzzle = "medpuzzle"
 
 def stitch(matrix):
     width = 0
@@ -124,10 +124,8 @@ def match(side1, side2):
 			if aInd < 0 or aInd >= len(a):
 				diff += 50
 			else:
-				n = 0
-				for color in a[aInd][0]:
-					diff += abs(color - b[i][0][n])
-					n += 1
+				for n in range(3):
+					diff += abs(a[aInd][0][n] - b[i][0][n])
 				diff += abs(a[aInd][1] + b[i][1])
 		trials.append((diff, offset))
 	trials.sort(key=iter0)
@@ -169,6 +167,7 @@ if __name__ == '__main__':
 	      mPix[x, y] = (0, 0, 0, 0)
 
 	# mask = Image.open("resources/mask.png")
+	mask.save("resources/mask.png")
 
 	rowOf0 = True
 	colOf0 = True
@@ -395,6 +394,8 @@ if __name__ == '__main__':
 		for col in row:
 			transpose[n].append(col)
 			n += 1
+
+	print("")
 
 	for r in transpose:
 		for c in r:

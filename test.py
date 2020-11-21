@@ -20,7 +20,6 @@ def match(a, b):
 			if aInd < 0 or aInd >= len(a):
 				diff += 100
 			else:
-				print(a[aInd][0], b[i][0])
 				for n in range(3):
 					diff += abs(a[aInd][0][n] - b[i][0][n])
 				diff += abs(a[aInd][1] + b[i][1])
@@ -61,7 +60,7 @@ def getPiece(row, col):
 	return analyzePiece(identifier)
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/transparent.png")
+	puzzle = Image.open("resources/bigpuzzle.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
@@ -128,7 +127,7 @@ if __name__ == '__main__':
 	plt.plot(g1, "g")
 	plt.plot(b1, "b")
 
-	second = getPiece(5, 7)
+	second = getPiece(2, 3)
 	secondSide = "RIGHT"
 	secondOff = second.getSide(secondSide).offsets
 
