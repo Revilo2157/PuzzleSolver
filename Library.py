@@ -226,10 +226,16 @@ def findCorners(points):
 		n = n+1
 
 	tested = []
-	sorted = []
+	corners = []
+
+	colinearThresh = 20
+	badPixel = {}
+	for point in points:
+		badPixel[point] = colinear(point,  points) < colinearThresh
 
 	for pointA in hull:
-		if colinear(pointA, points) <= 10:
+		#print("{:10} {:10} {:10}".format(str(pointA), colinear(pointA, points), badPixel[pointA]))
+		if badPixel[pointA]:
 			continue
 
 		for pointB in hull:
@@ -239,7 +245,7 @@ def findCorners(points):
 			if distance(pointA, pointB) < 10:
 				continue
 
-			if colinear(pointB, points) <= 10:
+			if badPixel[pointB]:
 				continue
 
 			for pointC in hull:
@@ -251,7 +257,7 @@ def findCorners(points):
 				if distance(pointC, pointB) < 10:
 					continue 
 
-				if colinear(pointC, points) <= 10:
+				if badPixel[pointC]:
 					continue
 
 				for pointD in hull:
@@ -269,25 +275,24 @@ def findCorners(points):
 					if distance(pointA, pointD) < 10 :
 						continue
 
-					if colinear(pointD, points) <= 10:
+					if badPixel[pointD]:
 						continue
 
-					points = (pointD, pointC, pointB, pointA)
-					setOfPoints = set(points)
+					toTest = (pointD, pointC, pointB, pointA)
+					setOfPoints = set(toTest)
 					if setOfPoints in tested:
 						continue
 
 					tested.append(setOfPoints)
-					points = rightHand(points)
+					toTest = rightHand(toTest)
 
-					rectangularness = howRectangular(points)
-					area = calcArea(points)
+					rectangularness = howRectangular(toTest)
+					area = calcArea(toTest)
 
-					sorted.append((points, area/(rectangularness + 10)))
+					corners.append((toTest, area/(rectangularness + 10)))
 
-	sorted.sort(key=iter1, reverse=True)
-
-	return sorted[0][0]
+	corners.sort(key=iter1, reverse=True)
+	return corners[0][0]
 
 # Sort the points based on how a parameterized line would visit them
 # Input: 
@@ -338,7 +343,6 @@ def colinear(toCheck, points):
 	for point in points:
 		if point is toCheck:
 			continue
-
 		px, py = point
 
 		if px == tcx or py == tcy:

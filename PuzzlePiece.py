@@ -275,6 +275,6 @@ class PuzzlePiece:
 		print()
 
 	def show(self):
-		OG = self.open(self.ImageType.ORIGINAL)
-		OG.rotate(self.rotations*90).show()
+		self.open(self.ImageType.ORIGINAL).show()
+		
 

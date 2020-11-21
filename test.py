@@ -5,12 +5,13 @@ import numpy as np
 import os
 import time
 from multiprocessing import Process, Lock, Manager
+import matplotlib
+from matplotlib import pyplot as plt
 
 numThreads = 10
 
-def match(side1, side2):
-	a = side1.offsets
-	b = side2.offsets[::-1]
+def match(a, b):
+	b = b[::-1]
 	trials = []
 	for offset in range(-int(len(max(a, b))/2), int(len(max(a, b))/2)):
 		diff = 0
@@ -20,22 +21,14 @@ def match(side1, side2):
 				diff += 10
 			else:
 				diff += abs(a[aInd][1] + b[i][1])
-		trials.append(diff)
-	trials.sort()
-	return trials[0]
+		trials.append((offset, diff))
+	return trials
 
-def analyzePiece(identifier, pieces, lock, semaphore):
-	with lock:
-		print("Starting %d" % identifier)
-
-	pieces.append(PuzzlePiece(identifier))
-
-	with lock:
-		print("Finished %d" % identifier)
-	semaphore.release()
+def analyzePiece(identifier):
+	return PuzzlePiece(identifier)
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/bigpuzzle.png")
+	puzzle = Image.open("resources/medpuzzle.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
@@ -88,46 +81,83 @@ if __name__ == '__main__':
 				rowBoundaries.append(y)
 			rowOf0 = False
 
-	try:	
+	x, y = (2, 0)
+	identifier = int((x + y*len(colBoundaries)/2)/2) + 1
+	print(identifier)
+
+	try:
 		os.mkdir("pieces")
 	except:
 		pass
 
-	threads = []
-	lock = Lock()
-	manager = Manager()
-	pieces = manager.list()
-	semaphore = manager.Semaphore(numThreads)
+	try:
+		os.mkdir("pieces/p%02d" % identifier)
+	except:
+		pass
 
-	start = time.time()
-	for y in range(0, 16, 2):
-		top = rowBoundaries[y]
-		bottom = rowBoundaries[y+1]
+	top = rowBoundaries[y]
+	bottom = rowBoundaries[y+1]
+	left = colBoundaries[x]
+	right = colBoundaries[x+1]
 
-		for x in range(0, 16, 2):
-			identifier = int((x + y*len(colBoundaries)/2)/2) + 1
+	cropBox = (left, top, right, bottom)
 
-			try:
-				os.mkdir("pieces/p%02d" % identifier)
-			except:
-				pass
+	piece = puzzle.crop(cropBox)
+	piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
 
-			left = colBoundaries[x]
-			right = colBoundaries[x+1]
+	pieceMask = mask.crop(cropBox)
+	pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
+	
+	corner = analyzePiece(identifier)
 
-			cropBox = (left, top, right, bottom)
 
-			piece = puzzle.crop(cropBox)
-			piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
+	x, y = (0, 0)
+	identifier = int((x + y*len(colBoundaries)/2)/2) + 1
+	print(identifier)
 
-			pieceMask = mask.crop(cropBox)
-			pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
+	try:
+		os.mkdir("pieces")
+	except:
+		pass
 
-			semaphore.acquire()
+	try:
+		os.mkdir("pieces/p%02d" % identifier)
+	except:
+		pass
 
-			thread = Process(target=analyzePiece, args=(identifier, pieces, lock, semaphore))
-			threads.append(thread)
-			thread.start()
+	top = rowBoundaries[y]
+	bottom = rowBoundaries[y+1]
+	left = colBoundaries[x]
+	right = colBoundaries[x+1]
 
-	for thread in threads:
-		thread.join()
+	cropBox = (left, top, right, bottom)
+
+	piece = puzzle.crop(cropBox)
+	piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
+
+	pieceMask = mask.crop(cropBox)
+	pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
+
+	next = analyzePiece(identifier)
+
+	vals = match(corner.getSide("RIGHT").offsets, next.getSide("TOP").offsets)
+
+	plt.figure(0)
+	plt.clf()
+
+	x1 = [point[0] for point in corner.getSide("RIGHT").offsets]
+	y1 = [point[1] for point in corner.getSide("RIGHT").offsets]
+	plt.plot(x1, y1[::-1])
+
+	x2 = [point[0] for point in next.getSide("TOP").offsets]
+	y2 = [point[1] + 10 for point in next.getSide("TOP").offsets]
+	plt.plot(x2, y2)
+
+	plt.figure(1)
+	plt.clf()
+
+	x3 = [point[0] for point in vals]
+	y3 = [point[1] for point in vals]
+	plt.plot(x3, y3)
+
+	plt.show()
