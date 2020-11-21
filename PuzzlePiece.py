@@ -226,9 +226,11 @@ class PuzzlePiece:
 
 		cx, cy = self.com
 
+		OG = self.open(self.ImageType.ORIGINAL).load()
+
 		if sign(x1 - cx) == sign(x2 - cx):
 			loc = self.Side.LEFT if x1 - cx < 0 else self.Side.RIGHT
-			offset = [(point[1], sign(x1 - cx)*(point[0] - closest(x1, x2, cx)))
+			offset = [(OG[point[0] - sign(x1 - cx), point[1]], sign(x1 - cx)*(point[0] - closest(x1, x2, cx)))
 				for point in points]
 
 			# textx = closest(x1, x2, cx) #x1 + sign(x1 - cx)*25
@@ -236,7 +238,7 @@ class PuzzlePiece:
 
 		elif sign(y1 - cy) == sign(y2 - cy):
 			loc = self.Side.BOTTOM if y1 - cy > 0 else self.Side.TOP
-			offset = [(point[0], sign(y1 - cy)*(point[1] - closest(y1, y2, cy)))
+			offset = [(OG[point[0], point[1] - sign(y1 - cy)], sign(y1 - cy)*(point[1] - closest(y1, y2, cy)))
 				for point in points]
 
 			# texty = closest(y1, y2, cy) #y1 + sign(y1 - cy)*25

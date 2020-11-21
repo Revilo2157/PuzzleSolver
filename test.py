@@ -20,17 +20,48 @@ def match(a, b):
 			if aInd < 0 or aInd >= len(a):
 				diff += 100
 			else:
+				print(a[aInd][0], b[i][0])
+				for n in range(3):
+					diff += abs(a[aInd][0][n] - b[i][0][n])
 				diff += abs(a[aInd][1] + b[i][1])
 		trials.append((diff, offset))
-	trials.sort(key=iter0)
-	print(trials[0])
 	return trials
 
 def analyzePiece(identifier):
 	return PuzzlePiece(identifier)
 
+def getPiece(row, col):
+	x, y = (col*2, row*2)
+	identifier = int((x + y*len(colBoundaries)/2)/2) + 1
+	print(identifier)
+
+	try:
+		os.mkdir("pieces")
+	except:
+		pass
+
+	try:
+		os.mkdir("pieces/p%02d" % identifier)
+	except:
+		pass
+
+	top = rowBoundaries[y]
+	bottom = rowBoundaries[y+1]
+	left = colBoundaries[x]
+	right = colBoundaries[x+1]
+
+	cropBox = (left, top, right, bottom)
+
+	piece = puzzle.crop(cropBox)
+	piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
+
+	pieceMask = mask.crop(cropBox)
+	pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
+	
+	return analyzePiece(identifier)
+
 if __name__ == '__main__':
-	puzzle = Image.open("resources/babyyoda.png")
+	puzzle = Image.open("resources/bigpuzzle.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
@@ -83,81 +114,46 @@ if __name__ == '__main__':
 				rowBoundaries.append(y)
 			rowOf0 = False
 
-	x, y = (2, 0)
-	identifier = int((x + y*len(colBoundaries)/2)/2) + 1
-	print(identifier)
+	first = getPiece(3, 1)
+	firstSide = "RIGHT"
+	firstOff = first.getSide(firstSide).offsets
 
-	try:
-		os.mkdir("pieces")
-	except:
-		pass
+	r1 = [color[0][0] for color in firstOff]
+	g1 = [color[0][1] for color in firstOff]
+	b1 = [color[0][2] for color in firstOff]
 
-	try:
-		os.mkdir("pieces/p%02d" % identifier)
-	except:
-		pass
+	plt.figure(2)
+	plt.clf()
+	plt.plot(r1, "r")
+	plt.plot(g1, "g")
+	plt.plot(b1, "b")
 
-	top = rowBoundaries[y]
-	bottom = rowBoundaries[y+1]
-	left = colBoundaries[x]
-	right = colBoundaries[x+1]
+	second = getPiece(1, 4)
+	secondSide = "RIGHT"
+	secondOff = second.getSide(secondSide).offsets
 
-	cropBox = (left, top, right, bottom)
+	r2 = [color[0][0] for color in secondOff]
+	g2 = [color[0][1] for color in secondOff]
+	b2 = [color[0][2] for color in secondOff]
 
-	piece = puzzle.crop(cropBox)
-	piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
+	plt.figure(3)
+	plt.clf()
+	plt.plot(r2, "r")
+	plt.plot(g2, "g")
+	plt.plot(b2, "b")
 
-	pieceMask = mask.crop(cropBox)
-	pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
-	
-	corner = analyzePiece(identifier)
-
-
-	x, y = (0, 0)
-	identifier = int((x + y*len(colBoundaries)/2)/2) + 1
-	print(identifier)
-
-	try:
-		os.mkdir("pieces")
-	except:
-		pass
-
-	try:
-		os.mkdir("pieces/p%02d" % identifier)
-	except:
-		pass
-
-	top = rowBoundaries[y]
-	bottom = rowBoundaries[y+1]
-	left = colBoundaries[x]
-	right = colBoundaries[x+1]
-
-	cropBox = (left, top, right, bottom)
-
-	piece = puzzle.crop(cropBox)
-	piece.save("pieces/p%02d/p%02d.png" % (identifier, identifier))
-
-	pieceMask = mask.crop(cropBox)
-	pieceMask.save("pieces/p%02d/p%02d-mask.png" % (identifier, identifier))
-
-	next = analyzePiece(identifier)
-
-	vals = match(corner.getSide("RIGHT").offsets, next.getSide("TOP").offsets)
+	vals = match(firstOff, secondOff)
 
 	plt.figure(0)
 	plt.clf()
 
-	x1 = [point[0] for point in corner.getSide("RIGHT").offsets]
-	y1 = [point[1] for point in corner.getSide("RIGHT").offsets]
+	y1 = [point[1] for point in firstOff]
 
-	x1 = [-x + max(x1) for x in x1]
+	plt.plot(y1)
 
-	plt.plot(x1, y1)
+	y2 = [point[1] for point in secondOff]
 
-	x2 = [point[0] for point in next.getSide("TOP").offsets]
-	y2 = [point[1] for point in next.getSide("TOP").offsets]
-
-	plt.plot(x2, y2)
+	plt.plot(y2)
 
 
 	# yflip = y1[::-1]
@@ -167,11 +163,24 @@ if __name__ == '__main__':
 	# except:
 	# 	pass
 
+	# y1.reverse()
+
+	# diff = 0
+	# for n in range(len(y2)):
+	# 	try:
+	# 		diff += abs(y1[n] + y2[n])
+	# 		print(y1[n], y2[n], diff)
+	# 	except:
+	# 		pass
+
 	plt.figure(1)
 	plt.clf()
 
-	x3 = [point[0] for point in vals]
-	y3 = [point[1] for point in vals]
+	x3 = [point[1] for point in vals]
+	y3 = [point[0] for point in vals]
 	plt.plot(x3, y3)
+
+	vals.sort(key=iter0)
+	print(vals[0])
 
 	plt.show()

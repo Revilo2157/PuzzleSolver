@@ -109,8 +109,8 @@ def match(side1, side2):
 	dx1, dy1 = (side1.points[0][0] - side1.points[-1][0], side1.points[0][1] - side1.points[-1][1])
 	dx2, dy2 = (side2.points[0][0] - side2.points[-1][0], side2.points[0][1] - side2.points[-1][1])
 
-	if min(abs(dx1) - abs(dx2), abs(dx1) - abs(dy2)) > 10 or min(abs(dy1) - abs(dy2), abs(dy1) - abs(dx2)) > 10:
-		return 1000000
+	if min(abs(abs(dx1) - abs(dx2)), abs(abs(dx1) - abs(dy2))) > 15 or min(abs(abs(dy1) - abs(dy2)), abs(abs(dy1) - abs(dx2))) > 15:
+		return 100000000
 
 	a = side1.offsets
 	b = side2.offsets[::-1]
@@ -121,8 +121,12 @@ def match(side1, side2):
 		for i in range(len(b)):
 			aInd = i + offset
 			if aInd < 0 or aInd >= len(a):
-				diff += 100
+				diff += 50
 			else:
+				n = 0
+				for color in a[aInd][0]:
+					diff += abs(color - b[i][0][n])
+					n += 1
 				diff += abs(a[aInd][1] + b[i][1])
 		trials.append((diff, offset))
 	trials.sort(key=iter0)
@@ -139,7 +143,7 @@ def analyzePiece(identifier, pieces, lock, semaphore):
 	semaphore.release()
 
 if __name__ == '__main__':
-	whichPuzzle = "medpuzzle"
+	whichPuzzle = "bigpuzzle"
 	puzzle = Image.open("resources/%s.png" % whichPuzzle)
 	pPix = puzzle.load()
 
@@ -163,8 +167,6 @@ if __name__ == '__main__':
 	      mPix[x, y] = (255, 255, 255, 255)
 	    else:
 	      mPix[x, y] = (0, 0, 0, 0)
-
-
 
 	# mask = Image.open("resources/mask.png")
 
@@ -309,29 +311,32 @@ if __name__ == '__main__':
 
 			print("Top: %s, Left: %s" % (topType.name, leftType.name))
 
+			print("\n{:10} | {:10} | {:10}".format("Identifier", "Difference",  "Rotations"))
+			print("{:10}_|_{:10}_|_{:10}".format("_"*10, "_"*10,  "_"*10))
+
 			matches = []
 			toCheck = PieceEdges[PuzzlePiece.matchingType(topType).name].intersection(PieceEdges[PuzzlePiece.matchingType(leftType).name])
 			for piece in toCheck:
 				for n in range(4):
 
-					left = piece.getSide("LEFT")
-					top = piece.getSide("TOP")
+					leftSide = piece.getSide("LEFT")
+					topSide = piece.getSide("TOP")
 					
-					if left.classification != PuzzlePiece.matchingType(leftType) or top.classification != PuzzlePiece.matchingType(topType):
+					if leftSide.classification != PuzzlePiece.matchingType(leftType) or topSide.classification != PuzzlePiece.matchingType(topType):
 						piece.rotatePiece()
 						continue
 
-					if left.classification == PuzzlePiece.EdgeType.FLAT:
+					if leftSide.classification == PuzzlePiece.EdgeType.FLAT:
 						leftMatch = 0
 					else:
-						leftMatch = match(current.getSide("RIGHT"), left)
+						leftMatch = match(left.getSide("RIGHT"), leftSide)
 
-					if top.classification == PuzzlePiece.EdgeType.FLAT:
+					if topSide.classification == PuzzlePiece.EdgeType.FLAT:
 						topMatch = 0
 					else:
-						topMatch = match(current.getSide("BOTTOM"), top)
+						topMatch = match(above.getSide("BOTTOM"), topSide)
 
-					print(leftMatch + topMatch, piece.identifier, piece.rotations)
+					print("{:10} | {:10} | {:10}".format(piece.identifier, leftMatch + topMatch, piece.rotations))
 
 					matches.append((leftMatch + topMatch, piece, piece.rotations))
 
@@ -382,13 +387,14 @@ if __name__ == '__main__':
 	# 		for n in range(3):
 	# 			col.rotatePiece()
 
-	transpose = [[], [], []]
-	n = 0
+	transpose = []
+	for col in puzzle[0]:
+		transpose.append([])
 	for row in puzzle:
+		n = 0
 		for col in row:
 			transpose[n].append(col)
 			n += 1
-		n = 0
 
 	for r in transpose:
 		for c in r:
