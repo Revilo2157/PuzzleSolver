@@ -61,7 +61,7 @@ def getPiece(row, col):
 	return analyzePiece(identifier)
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/bigpuzzle.png")
+	puzzle = Image.open("resources/transparent.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
@@ -114,7 +114,7 @@ if __name__ == '__main__':
 				rowBoundaries.append(y)
 			rowOf0 = False
 
-	first = getPiece(3, 1)
+	first = getPiece(0, 0)
 	firstSide = "RIGHT"
 	firstOff = first.getSide(firstSide).offsets
 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
 	plt.plot(g1, "g")
 	plt.plot(b1, "b")
 
-	second = getPiece(1, 4)
+	second = getPiece(5, 7)
 	secondSide = "RIGHT"
 	secondOff = second.getSide(secondSide).offsets
 

@@ -231,7 +231,7 @@ def findCorners(points):
 	colinearThresh = 20
 	badPixel = {}
 	for point in points:
-		badPixel[point] = colinear(point,  points) < colinearThresh
+		badPixel[point] = False#colinear(point,  points) < colinearThresh
 
 	for pointA in hull:
 		#print("{:10} {:10} {:10}".format(str(pointA), colinear(pointA, points), badPixel[pointA]))

@@ -9,6 +9,7 @@ from multiprocessing import Process, Lock, Manager
 import pickle
 
 numThreads = 10
+whichPuzzle = "bigpuzzle"
 
 def stitch(matrix):
     width = 0
@@ -143,7 +144,6 @@ def analyzePiece(identifier, pieces, lock, semaphore):
 	semaphore.release()
 
 if __name__ == '__main__':
-	whichPuzzle = "bigpuzzle"
 	puzzle = Image.open("resources/%s.png" % whichPuzzle)
 	pPix = puzzle.load()
 
