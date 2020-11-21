@@ -8,14 +8,14 @@ def stitch(matrix):
     height = 0
 
     # get width
-    for x in range(len(matrix)): # number of cols
-        piece = matrix[x][0]
+    for y in range(len(matrix)): # number of cols
+        piece = matrix[y][0]
         padded = max(piece.open(PuzzlePiece.ImageType.ORIGINAL).size)
         width += getWidth(piece, (int(np.floor(padded/2)), int(np.floor(padded/2))))
 
     # get height
-    for y in range(len(matrix[0])): # number of rows
-        piece = matrix[0][y]
+    for x in range(len(matrix[0])): # number of rows
+        piece = matrix[0][x]
         padded = max(piece.open(PuzzlePiece.ImageType.ORIGINAL).size)
         height += getHeight(piece, (int(np.floor(padded/2)), int(np.floor(padded/2))))
 
@@ -24,9 +24,9 @@ def stitch(matrix):
     w = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
     h = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
     # attach pieces
-    for x in range(len(matrix)): # x = # of cols
-        for y in range(len(matrix[0])): # y = # of rows
-            current = matrix[x][y]
+    for y in range(len(matrix)): # x = # of cols
+        for x in range(len(matrix[0])): # y = # of rows
+            current = matrix[y][x]
             img = current.open(PuzzlePiece.ImageType.ORIGINAL)
             rotations = current.rotations
 
@@ -38,29 +38,29 @@ def stitch(matrix):
             rotatedImg = resized.rotate(rotations*90, center=center)
 
             # get transformed height and width of each piece
-            w[x][y] = getWidth(current, center)
-            h[x][y] = getHeight(current, center)
+            w[y][x] = getWidth(current, center)
+            h[y][x] = getHeight(current, center)
             
             # stich by top left corner
             ref = np.subtract((0,0), getTopLeft(current, center, rotations))
 
-            if ((x == 0) and (y == 0)):
+            if ((y == 0) and (x == 0)):
                 height = 0
                 width = [0]
                 place = tuple(ref)
             else:
                 # check x and y value
-                if(x == 0):
+                if(y == 0):
                     width.append(0)
                 else:
-                    width[y] += w[x-1][y]
+                    width[x] += w[y-1][x]
 
-                if (y == 0):
+                if (x == 0):
                     height = 0
                 else:
-                    height += h[x][y-1]
+                    height += h[y][x-1]
                 
-                place = (ref[0] + width[y], ref[1] + height)
+                place = (ref[0] + width[x], ref[1] + height)
             
             # add piece to image
             stitched.paste(rotatedImg, place, rotatedImg)
@@ -174,13 +174,13 @@ def testTopLeft(piece, number):
     del rot_draw
     rotatedImg.show()
 
-# puzzle = [[PuzzlePiece(5), PuzzlePiece(3)], [PuzzlePiece(4), PuzzlePiece(2)], [PuzzlePiece(6), PuzzlePiece(1)]]
-piece = [[5, 14, 19, 18, 22], [2, 24, 3, 25, 9], [17, 11, 16, 7, 12], [6, 8, 4, 23, 13], [21, 10, 15, 20, 1]]
-rots = [[1, 0, 2, 3, 2], [0, 1, 0, 3, 0], [2, 0, 1, 0, 3], [0, 3, 0, 1, 0], [2, 0, 3, 2, 1]]
-puzzle = [[], [], [], [], []]
+# # puzzle = [[PuzzlePiece(5), PuzzlePiece(3)], [PuzzlePiece(4), PuzzlePiece(2)], [PuzzlePiece(6), PuzzlePiece(1)]]
+piece = [[1, 3, 7], [8, 6, 4], [9, 5, 2]]
+rots = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+puzzle = [[], [], []]
 
-for x in range(len(piece)): # x = # of cols
-    for y in range(len(piece[0])): # y = # of rows
+for y in range(len(piece)): # x = # of cols
+    for x in range(len(piece[0])): # y = # of rows
         current = PuzzlePiece(piece[x][y])
         for r in range(rots[x][y]):
             current.rotatePiece()
