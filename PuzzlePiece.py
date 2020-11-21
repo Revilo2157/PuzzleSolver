@@ -70,6 +70,7 @@ class PuzzlePiece:
 			textPoints = []
 
 			for edge in self.getEdges():
+
 				offset, loc, char = self.classifyEdge(edge)
 				self.edges.append(self.Edge(edge, offset, loc, char)) # line I have to change
 
@@ -88,6 +89,8 @@ class PuzzlePiece:
 				textPoints.append(([(posx*5 - width/2, posy*5), 
 														(posx*5 + width, posy*5 + height)], 
 														(posx*5 - width/4, posy*5 + height/6), char.name))
+
+
 
 			self.edges.sort(key=self.Edge.iterEnum)
 
@@ -252,6 +255,8 @@ class PuzzlePiece:
 				char = self.EdgeType.HEAD
 			else:
 				char = self.EdgeType.HOLE 
+
+		
 
 		return (offset, loc, char)
 

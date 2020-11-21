@@ -3,8 +3,10 @@ from PIL import Image, ImageDraw, ImageColor
 from PuzzlePiece import PuzzlePiece 
 import numpy as np
 import os
+import shutil
 import time
 from multiprocessing import Process, Lock, Manager
+import pickle
 
 numThreads = 10
 
@@ -71,7 +73,7 @@ def stitch(matrix):
             stitched.paste(rotatedImg, place, rotatedImg)
     print(w)
     print(h)
-    stitched.show()
+    return stitched
 
 def getHeight(piece, center):
     # subtract the last point of bottom by the first point of top
@@ -112,6 +114,7 @@ def match(side1, side2):
 
 	a = side1.offsets
 	b = side2.offsets[::-1]
+
 	trials = []
 	for offset in range(-int(len(max(a, b))/2), int(len(max(a, b))/2)):
 		diff = 0
@@ -120,7 +123,7 @@ def match(side1, side2):
 			if aInd < 0 or aInd >= len(a):
 				diff += 100
 			else:
-				diff += np.sqrt(a[aInd][1]**2 + b[i][1]**2)
+				diff += abs(a[aInd][1] + b[i][1])
 		trials.append((diff, offset))
 	trials.sort(key=iter0)
 	return trials[0][0]
@@ -136,8 +139,20 @@ def analyzePiece(identifier, pieces, lock, semaphore):
 	semaphore.release()
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/medpuzzle.png")
+	whichPuzzle = "medpuzzle"
+	puzzle = Image.open("resources/%s.png" % whichPuzzle)
 	pPix = puzzle.load()
+
+	try:
+		with open("puzzle.cache", "rb") as cache:
+			last = pickle.load(cache)
+		if last != whichPuzzle:
+			shutil.rmtree("pieces")
+	except:
+		pass
+
+	with open("puzzle.cache", "wb") as cache:
+		pickle.dump(whichPuzzle, cache)
 
 	# Do Not Delete
 	mask = Image.new("RGBA", (puzzle.size[0], puzzle.size[1]))
@@ -262,8 +277,6 @@ if __name__ == '__main__':
 		or topLeft.getSide("LEFT").classification != PuzzlePiece.EdgeType.FLAT):
 		topLeft.rotatePiece()
 
-
-
 	row = 0
 	col = 1
 	current = topLeft
@@ -311,12 +324,12 @@ if __name__ == '__main__':
 					if left.classification == PuzzlePiece.EdgeType.FLAT:
 						leftMatch = 0
 					else:
-						leftMatch = match(current.getSide("LEFT"), left)
+						leftMatch = match(current.getSide("RIGHT"), left)
 
 					if top.classification == PuzzlePiece.EdgeType.FLAT:
 						topMatch = 0
 					else:
-						topMatch = match(current.getSide("TOP"), top)
+						topMatch = match(current.getSide("BOTTOM"), top)
 
 					print(leftMatch + topMatch, piece.identifier, piece.rotations)
 
@@ -382,4 +395,7 @@ if __name__ == '__main__':
 			print("{:3}".format(c.identifier), end=" ")
 		print("")
 
-	stitch(transpose)
+	assembled = stitch(transpose)
+
+	assembled.show()
+	assembled.save("Assembled.png")

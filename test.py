@@ -18,17 +18,19 @@ def match(a, b):
 		for i in range(len(b)):
 			aInd = i + offset
 			if aInd < 0 or aInd >= len(a):
-				diff += 10
+				diff += 100
 			else:
 				diff += abs(a[aInd][1] + b[i][1])
-		trials.append((offset, diff))
+		trials.append((diff, offset))
+	trials.sort(key=iter0)
+	print(trials[0])
 	return trials
 
 def analyzePiece(identifier):
 	return PuzzlePiece(identifier)
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/medpuzzle.png")
+	puzzle = Image.open("resources/babyyoda.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
@@ -147,11 +149,23 @@ if __name__ == '__main__':
 
 	x1 = [point[0] for point in corner.getSide("RIGHT").offsets]
 	y1 = [point[1] for point in corner.getSide("RIGHT").offsets]
-	plt.plot(x1, y1[::-1])
+
+	x1 = [-x + max(x1) for x in x1]
+
+	plt.plot(x1, y1)
 
 	x2 = [point[0] for point in next.getSide("TOP").offsets]
-	y2 = [point[1] + 10 for point in next.getSide("TOP").offsets]
+	y2 = [point[1] for point in next.getSide("TOP").offsets]
+
 	plt.plot(x2, y2)
+
+
+	# yflip = y1[::-1]
+	# try:
+	# 	for n in range(len(y1)):
+	# 		print("({:4}, {:4}), ({:4}, {:4})".format(x2[n], y2[n], x1[n], yflip[n]))
+	# except:
+	# 	pass
 
 	plt.figure(1)
 	plt.clf()
