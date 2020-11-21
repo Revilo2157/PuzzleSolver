@@ -9,6 +9,13 @@ from multiprocessing import Process, Lock, Manager
 numThreads = 10
 
 def match(side1, side2):
+
+	dx1, dy1 = (side1.points[0][0] - side1.points[-1][0], side1.points[0][1] - side1.points[-1][1])
+	dx2, dy2 = (side2.points[0][0] - side2.points[-1][0], side2.points[0][1] - side2.points[-1][1])
+
+	if min(abs(dx1) - abs(dx2), abs(dx1) - abs(dy2)) > 10 or min(abs(dy1) - abs(dy2), abs(dy1) - abs(dx2)) > 10:
+		return 1000000
+
 	a = side1.offsets
 	b = side2.offsets[::-1]
 	trials = []
@@ -17,12 +24,12 @@ def match(side1, side2):
 		for i in range(len(b)):
 			aInd = i + offset
 			if aInd < 0 or aInd >= len(a):
-				diff += 10
+				diff += 100
 			else:
-				diff += abs(a[aInd][1] + b[i][1])
-		trials.append(diff)
-	trials.sort()
-	return trials[0]
+				diff += np.sqrt(a[aInd][1]**2 + b[i][1]**2)
+		trials.append((diff, offset))
+	trials.sort(key=iter0)
+	return trials[0][0]
 
 def analyzePiece(identifier, pieces, lock, semaphore):
 	with lock:
@@ -35,7 +42,7 @@ def analyzePiece(identifier, pieces, lock, semaphore):
 	semaphore.release()
 
 if __name__ == '__main__':
-	puzzle = Image.open("resources/babyyoda.png")
+	puzzle = Image.open("resources/medpuzzle.png")
 	pPix = puzzle.load()
 
 	# Do Not Delete
@@ -156,13 +163,12 @@ if __name__ == '__main__':
 	for topLeft in PieceEdges["corner"]:
 		break
 
-	topLeft.printEdges()
 
 	while (topLeft.getSide("TOP").classification != PuzzlePiece.EdgeType.FLAT 
 		or topLeft.getSide("LEFT").classification != PuzzlePiece.EdgeType.FLAT):
 		topLeft.rotatePiece()
 
-	topLeft.printEdges()
+
 
 	row = 0
 	col = 1
@@ -174,6 +180,11 @@ if __name__ == '__main__':
 
 	while pieces:
 		while True:
+			print(row, col)
+			for r in puzzle:
+				for c in r:
+					print("{:3}".format(c.identifier), end=" ")
+				print("")
 			corner = False
 			if not row:
 				above = None
@@ -189,43 +200,65 @@ if __name__ == '__main__':
 				left = puzzle[row][col-1]
 				leftType = left.getSide("RIGHT").classification
 
+			print("Top: %s, Left: %s" % (topType.name, leftType.name))
+
 			matches = []
-			toCheck = PieceEdges[topType.name].intersection(PieceEdges[leftType.name])
+			toCheck = PieceEdges[PuzzlePiece.matchingType(topType).name].intersection(PieceEdges[PuzzlePiece.matchingType(leftType).name])
 			for piece in toCheck:
-				while piece.getSide("TOP").classification != PuzzlePiece.matchingType(topType):			
+				for n in range(4):
+
+					left = piece.getSide("LEFT")
+					top = piece.getSide("TOP")
+					
+					if left.classification != PuzzlePiece.matchingType(leftType) or top.classification != PuzzlePiece.matchingType(topType):
+						piece.rotatePiece()
+						continue
+
+					if left.classification == PuzzlePiece.EdgeType.FLAT:
+						leftMatch = 0
+					else:
+						leftMatch = match(current.getSide("LEFT"), left)
+
+					if top.classification == PuzzlePiece.EdgeType.FLAT:
+						topMatch = 0
+					else:
+						topMatch = match(current.getSide("TOP"), top)
+
+					print(leftMatch + topMatch, piece.identifier, piece.rotations)
+
+					matches.append((leftMatch + topMatch, piece, piece.rotations))
+
 					piece.rotatePiece()
 
-				if col and piece in PieceEdges["corner"] and piece.getSide("RIGHT").classification != PuzzlePiece.EdgeType.FLAT:
-					for n in range(3):
-						piece.rotatePiece()
-				left = piece.getSide("LEFT")
-
-				if left.classification != PuzzlePiece.matchingType(leftType):
-					continue
-
-				matches.append((match(current.getSide("LEFT"), left), piece))
-
+			print("\n")
 			matches.sort(key=iter0)
 			current = matches[0][1]
+			while current.rotations != matches[0][2]:
+				current.rotatePiece()
+
 			if not col:
 				puzzle.append([])
-			puzzle[row].append(current)
 
+			puzzle[row].append(current)
 			pieces.remove(current)
-			corner = current in PieceEdges["corner"]
+
 			for type in PieceEdges:
 				PieceEdges[type].discard(current)
 
-			if col and corner:
+			if current.getSide("RIGHT").classification is PuzzlePiece.EdgeType.FLAT:
 				break
 					
 			col += 1
 		col = 0
 		row += 1
+		print("New Row")
+
+	for r in puzzle:
+		for c in r:
+			print("{:3}".format(c.identifier), end=" ")
+		print("")
 
 	width = sum([piece.open(PuzzlePiece.ImageType.ORIGINAL).size[0] for piece in puzzle[0]])
-	for row in puzzle:
-		print(row[0].open(PuzzlePiece.ImageType.ORIGINAL).size[1])
 	height = sum([row[0].open(PuzzlePiece.ImageType.ORIGINAL).size[1] for row in puzzle])
 
 	assembled = Image.new("RGBA", (width, height))
